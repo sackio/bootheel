@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Object View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+    <form class="form-horizontal">
+
+    </form>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    var gb = {};
+
+    gb.obj = 
+{
+  "name": "bootheel",
+  "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
+  "version": "0.0.1",
+  "number": 1211321,
+  "homepage": "",
+  "license": "MIT",
+  "copyright": "Ben Sack",
+  "main": "dist/bootheel.js",
+  "dependencies": {
+    "underscore": "*"
+  , "jsbelt": "*"
+  , "moment": "*"
+  , "jquery": "*"
+  , "bootstrap": "*"
+  , "backbone": "*"
+  , "bootstrap-multiselect": "*"
+  , "bootstrap-fileinput": "*"
+  , "jquery-file-upload": "*"
+  },
+  "devDependencies": {
+    "assert": "*",
+    "blanket": {
+    "underscore": "*"
+  , "jsbelt": "*"
+  , "moment": "*"
+  , "jquery": "*"
+  , "bootstrap": "*"
+  , "backbone": "*"
+  , "bootstrap-multiselect": "*"
+  , "bootstrap-fileinput": "*"
+  , "jquery-file-upload": "*"
+  }
+  },
+  "ignore": [
+    "test",
+    "example",
+    "lib",
+    "Gruntfile.js",
+    "package.json",
+    "grunt"
+  ]
+};
+
+    gb.view = _$.mutableControl({'name': 'view'});
+    $('form').html(gb.view.$el);
+
+    gb.model = _$.model();
+    gb.doc = new gb.model({});
+    gb.doc.$addValidation({'path': 'name', 'method': 'required', 'message': 'name is required'});
+    gb.doc.$addValidation({'path': 'name', 'method': 'defined', 'message': 'name is required'});
+    gb.doc.$addValidation({'path': ''
+    , 'method': function(){ 
+      return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 2;
+    }
+    , 'message': 'ignore needs at least two elements'});
+    gb.doc.addView('view', gb.view);
+    gb.doc.set('', gb.obj);
+
+  </script>
+</body>
+</html>

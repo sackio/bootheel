@@ -1,0 +1,33 @@
+{
+  "name": "bootheel",
+  "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
+  "version": "0.0.1",
+  "homepage": "",
+  "license": "MIT",
+  "copyright": "Ben Sack",
+  "main": "dist/bootheel.js",
+  "dependencies": {
+    "underscore": "*"
+  , "jsbelt": "*"
+  , "moment": "*"
+  , "jquery": "*"
+  , "bootstrap": "*"
+  , "backbone": "*"
+  , "bootstrap-multiselect": "*"
+  , "bootstrap-fileinput": "*"
+  , "jquery-file-upload": "*"
+  , "bootbox": "*"
+  },
+  "devDependencies": {
+    "assert": "*",
+    "blanket": "*"
+  },
+  "ignore": [
+    "test",
+    "example",
+    "lib",
+    "Gruntfile.js",
+    "package.json",
+    "grunt"
+  ]
+}

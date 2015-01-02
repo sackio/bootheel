@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Controls</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    var gb = {};
+    gb.textControl = _$.textControl({'value': 'a text control', 'name': 'textControl'});
+    gb.numberControl = _$.numberControl({'value': 12, 'name': 'numberControl'});
+    gb.datetimeControl = _$.datetimeControl({'value': new Date(), 'name': 'datetimeControl'});
+    gb.checkboxControl = _$.checkboxControl({'value': true, 'name': 'checkboxControl'});
+    gb.textareaControl = _$.textareaControl({'value': 'textarea value', 'name': 'textareaControl'});
+    gb.radioControl = _$.radioControl({'name': 'radioControl', 'values': ['a', 'b', 'c'], 'value': 'c'});
+    gb.selectControl = _$.selectControl({'values': ['apple', 'banana', 'carrot']
+                                       , 'value': 'carrot', 'name': 'selectControl'});
+
+    gb.mutableControl = _$.mutableControl({'value': true, 'name': 'mutableControl'});
+
+    gb.arrayControl = _$.arrayControl({'value': [1, 2, 3], 'name': 'array'});
+
+    gb.form = _$.view({'class': 'form-horizontal', 'tag': 'form'
+    , 'views': {'textControl': gb.textControl, 'numberControl': gb.numberControl
+               , 'datetimeControl': gb.datetimeControl, 'checkboxControl': gb.checkboxControl
+               , 'textareaControl': gb.textareaControl, 'radioControl': gb.radioControl
+               , 'selectControl': gb.selectControl, 'mutableControl': gb.mutableControl
+               , 'arrayControl': gb.arrayControl}
+    , 'layout': ['textControl', 'numberControl', 'datetimeControl', 'checkboxControl'
+                , 'textareaControl', 'radioControl', 'selectControl', 'mutableControl'
+                , 'arrayControl']});
+
+    gb.form.render();
+    $('#fixture').html(gb.form.getEl());
+  </script>
+</body>
+</html>
