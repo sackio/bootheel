@@ -95,15 +95,29 @@
     $('form').html(gb.view.$el);
 
     gb.model = _$.model();
-    gb.doc = new gb.model({});
-    gb.doc.$addValidation({'path': 'name', 'method': 'required', 'message': 'name is required'});
-    gb.doc.$addValidation({'path': 'name', 'method': 'defined', 'message': 'name is required'});
-    gb.doc.$addValidation({'path': ''
-    , 'method': function(){ 
-      return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 2;
-    }
-    , 'message': 'ignore needs at least two elements'});
-    gb.doc.addView('view', gb.view);
+    gb.doc = new gb.model({
+      'views': {
+        'view': gb.view
+      }
+    , 'validations': [
+        {'path': 'name', 'method': 'required', 'message': 'name is required'}
+      //, {'path': 'baloney', 'method': 'defined', 'message': 'baloney is required'}
+      , {'path': 'name', 'method': 'defined', 'message': 'name must be defined'}
+      , {'path': 'dependencies.underscore', 'method': 'match', 'regex': /hello|hi/
+        , 'message': 'dependencies.underscore must match /hello|hi/'}
+      , {'path': 'ignore.0', 'method': 'enum', 'values': ['js', 'css', 'html']
+        , 'message': 'ignore.0 must match [js, css, html]'}
+      , {'path': 'ignore', 'method': function(){
+          return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 4;
+        }, 'message': 'ignore needs at least four elements'}
+      ]
+    , 'schema': {
+        'name': 'string'
+      , 'dependencies': 'object'
+      , 'dependencies.frog': 'boolean'
+      }
+    });
+
     gb.doc.set('', gb.obj);
 
   </script>

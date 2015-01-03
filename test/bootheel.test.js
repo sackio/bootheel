@@ -2408,7 +2408,7 @@ suite('controls', function(){
     assert.ok(Belt.deepEqual(gb.form.getObj(), {
       'textControl': 'a text control'
     , 'numberControl': 12
-    , 'datetimeControl': gb.date
+    , 'datetimeControl': gb.date.toDate()
     , 'checkboxControl': true
     , 'textareaControl': 'textarea value'
     , 'radioControl': 'c'
@@ -2444,7 +2444,7 @@ suite('controls', function(){
     assert.ok(Belt.deepEqual(gb.val.oval, {
       'textControl': 'a text control'
     , 'numberControl': 12
-    , 'datetimeControl': gb.date
+    , 'datetimeControl': gb.date.toDate()
     , 'checkboxControl': true
     , 'textareaControl': 'textarea value'
     , 'radioControl': 'c'
@@ -2454,7 +2454,7 @@ suite('controls', function(){
     assert.ok(Belt.deepEqual(gb.form.getObj(), {
       'textControl': 'a'
     , 'numberControl': 1
-    , 'datetimeControl': gb.dateb
+    , 'datetimeControl': gb.dateb.toDate()
     , 'checkboxControl': false
     , 'textareaControl': 'area value'
     , 'radioControl': 'b'
@@ -2468,7 +2468,7 @@ suite('controls', function(){
     assert.ok(Belt.deepEqual(gb.val.oval, {
       'textControl': 'a'
     , 'numberControl': 1
-    , 'datetimeControl': gb.dateb
+    , 'datetimeControl': gb.dateb.toDate()
     , 'checkboxControl': false
     , 'textareaControl': 'area value'
     , 'radioControl': 'b'
