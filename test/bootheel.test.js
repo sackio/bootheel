@@ -2872,6 +2872,10 @@ suite('objects', function(){
     gb.el.set(gb.obj);
     assert.ok(Belt.deepEqual(gb.obj, gb.el.get()));
 
+    return done();
+  });
+
+  test('objectControl-set-get', function(done){
     gb.obj = [];
     gb.el.set(gb.obj);
     assert.ok(Belt.deepEqual(gb.obj, gb.el.get()));
@@ -2902,6 +2906,10 @@ suite('objects', function(){
       assert.ok(Belt.isNull(gb.el.getPath(k)) || !Belt.deepEqual(gb.el.getPath(k), v));
     });
 
+    return done();
+  });
+
+  test('objectControl-set-get', function(done){
     gb.obj = {
       name: 'Bob Boston',
       hobbies: ['rowing', 'smurfing'],
@@ -2941,6 +2949,10 @@ suite('objects', function(){
 
     gb.el.setPath('friends.hobbies.1', true);
 
+    return done();
+  });
+
+  test('objectControl-set-get', function(done){
     gb.obj = {
       name: 'Bob Boston',
       hobbies: ['rowing', 'surfing'],
