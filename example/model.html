@@ -91,13 +91,13 @@
   ]
 };
 
-    gb.view = _$.mutableControl({'name': 'view'});
-    $('form').html(gb.view.$el);
+    //gb.view = _$.mutableControl({'name': 'view'});
+    //$('form').html(gb.view.$el);
 
     gb.model = _$.model();
     gb.doc = new gb.model({
       'views': {
-        'view': gb.view
+        'view': {'name': 'view', 'method': 'mutableControl', 'container': {'selector': 'form', 'method': 'html'}}
       }
     , 'validations': [
         {'path': 'name', 'method': 'required', 'message': 'name is required'}
@@ -115,6 +115,7 @@
         'name': 'string'
       , 'dependencies': 'object'
       , 'dependencies.frog': 'boolean'
+      , 'ignore': 'array'
       }
     });
 

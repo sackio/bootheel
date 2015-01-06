@@ -88,7 +88,14 @@
   ]
 };
 
-    var el = _$.mutableControl({'value': obj, 'name': 'control'});
+var schema = {
+        'name': 'string'
+      , 'dependencies': 'object'
+      , 'dependencies.frog': 'boolean'
+      , 'ignore': 'array'
+      };
+
+    var el = _$.mutableControl({'value': obj, 'name': 'control', 'control_settings': {'schema': schema}});
     el.render();
     $('form').html(el.$el);
 

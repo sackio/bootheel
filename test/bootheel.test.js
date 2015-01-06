@@ -2664,7 +2664,7 @@ suite('controls', function(){
     assert.ok(Belt.deepEqual(gb.val.oval, gb.date.toDate()));
 
 
-    gb.el.set('c', {'_$control': 'selectControl', 'values': ['a', 'b', 'c'], 'multiple': true})
+    gb.el.set('c', {'$control': 'selectControl', 'values': ['a', 'b', 'c'], 'multiple': true})
     assert.ok(Belt.deepEqual(gb.el.get(), ['c']));
     assert.ok(gb.el.$el.data('control') === 'mutable');
     assert.ok(gb.el.$el.data('name') === 'donkey');
