@@ -95,7 +95,34 @@ var schema = {
       , 'ignore': 'array'
       };
 
-    var el = _$.mutableControl({'value': obj, 'name': 'control', 'control_settings': {'schema': schema}});
+    var el = _$.mutableControl({'value': obj, 'name': 'control', 'schema': schema
+                               , 'subschemas': {
+                                   'ignore': {
+                                     'child': {
+                                       'method': 'mutableControl'
+                                     , 'options': {
+                                         'schema': {
+                                           '': 'object'
+                                         , 'frog': 'boolean'
+                                         , 'cat': 'string'
+                                         }
+                                       }
+                                     }
+                                   }
+                                 , 'dependencies': {
+                                     'child': {
+                                       'method': 'mutableControl'
+                                     , 'options': {
+                                         'schema': {
+                                           '': 'object'
+                                         , 'frog': 'boolean'
+                                         , 'cat': 'string'
+                                         }
+                                       }
+                                     }
+                                   }
+                                 }
+                               });
     el.render();
     $('form').html(el.$el);
 
