@@ -4070,7 +4070,7 @@ suite('models', function(){
 
     gb.view = gb.doc.$views.view;
 
-    this.timeout(10000);
+    this.timeout(20000);
 
     return async.waterfall([
       function(cb){
@@ -4353,6 +4353,400 @@ suite('models', function(){
 
         assert.ok(Belt.equal(gb.doc.get(), gb.val));
         assert.ok(Belt.equal(gb.doc.validate(), []));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.push('ignore', '123')
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.ignore.push('123');
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), []));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.unshift('ignore', 'abc');
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.ignore.unshift('abc');
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.pop('ignore');
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.ignore.pop();
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.shift('ignore');
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.ignore.shift();
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), [
+        //  {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.move('ignore', 0, 1);
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        var s = gb.val.ignore[0];
+
+        gb.val.ignore[0] = gb.val.ignore[1];
+        gb.val.ignore[1] = s;
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.splice('ignore', 0, 5, 'sds');
+
+        return setTimeout(cb, 1000);
+      }
+    , function(cb){
+        gb.bu = Belt.copy(gb.val);
+        gb.val.ignore.splice(0, 5, 'sds');
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        , {'message': 'ignore needs at least four elements', 'path': 'ignore'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.rollback();
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val = gb.bu;
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
 
         assert.ok(gb.view.$('legend').length === 5);
         _.each(gb.view.$('legend'), function(e){
