@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Object View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+    <form class="form-horizontal">
+
+    </form>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    var gb = {};
+
+    /*gb.obj = {
+      'string': 'string'
+    , 'number': 1234
+    , 'boolean': true
+    , 'object': {
+        'string': 'string'
+      , 'number': 1234
+      , 'boolean': true
+      }
+    , 'array': [
+        'string'
+      , 1234
+      , true
+      ]
+    };
+
+    gb.schema = {
+      'string': 'string'
+    , 'number': 'number'
+    , 'boolean': 'boolean'
+    , 'object': 'object'
+    , 'array': 'array'
+    };
+
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'removable': false, 'addable': true
+            , 'subschemas': {
+                'object': {'removable': false, 'addable': false, 'child': {'removable': false, 'addable': false}}
+              , 'string': {'$control': 'selectControl', 'values': ['test', 'string']}
+              , 'array': {'removable': false, 'child': {'default_control': 'selectControl', '$control': 'selectControl', 'value': 'dog', 'values': ['dog', 'cat']}}
+              }
+            };*/
+
+    /*gb.obj = ['dog'];
+    gb.schema = {'': 'array'};
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'removable': false, 'addable': true
+            , 'child': {'$control': 'selectControl', 'value': 'dog', 'values': ['dog', 'cat'], 'removable': false}};
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();*/
+
+    gb.obj = {};
+    gb.schema = {'': 'object', 'name': 'string', 'dog': 'array'};
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'removable': false, 'addable': false
+            , 'subschemas': {
+                'dog': {
+                  'child': {
+                    'schema': {'': 'object', 'name': 'string', 'breed': 'string'}
+                  , 'removable': false, 'addable': false
+                  , 'subschemas': {
+                      'breed': {
+                        '$control': 'selectControl', 'values': ['lab', 'frenchie', 'terrier'], 'removable': false
+                      }
+                    , 'name': {
+                        'removable': false
+                      }
+                    }
+                  }
+                }
+              }
+            };
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();
+    $('form').append(gb.el.$el);
+
+  </script>
+</body>
+</html>

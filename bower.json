@@ -20,7 +20,8 @@
   },
   "devDependencies": {
     "assert": "*",
-    "blanket": "*"
+    "blanket": "*",
+    "async": "*"
   },
   "ignore": [
     "test",

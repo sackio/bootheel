@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>bootheel | Object View</title>
+  <title>bootheel | Model View</title>
   <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
 
   <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
@@ -82,34 +82,37 @@
   }
   },
   "ignore": [
-    "test",
+    {'longitude': 1323, 'latitude': 2234}
+/*    "test",
     "example",
     "lib",
     "Gruntfile.js",
     "package.json",
-    "grunt"
+    "grunt"*/
   ]
 };
 
     //gb.view = _$.mutableControl({'name': 'view'});
     //$('form').html(gb.view.$el);
 
-    gb.model = _$.model();
+    /*gb.model = _$.model();
     gb.doc = new gb.model({
       'views': {
-        'view': {'name': 'view', 'method': 'mutableControl', 'container': {'selector': 'form', 'method': 'html'}}
+        'view': {'name': 'view', 'addable': false, 'method': 'mutableControl', 'container': {'selector': 'form', 'method': 'html'}}
       }
     , 'validations': [
-        {'path': 'name', 'method': 'required', 'message': 'name is required'}
-      //, {'path': 'baloney', 'method': 'defined', 'message': 'baloney is required'}
-      , {'path': 'name', 'method': 'defined', 'message': 'name must be defined'}
-      , {'path': 'dependencies.underscore', 'method': 'match', 'regex': /hello|hi/
-        , 'message': 'dependencies.underscore must match /hello|hi/'}
-      , {'path': 'ignore.0', 'method': 'enum', 'values': ['js', 'css', 'html']
-        , 'message': 'ignore.0 must match [js, css, html]'}
-      , {'path': 'ignore', 'method': function(){
+        {'path': '^name$', 'method': 'required', 'message': 'name is required'}
+      , {'path': '^name$', 'method': 'defined', 'message': 'name must be defined'}
+      , {'path': '^dependencies.underscore$', 'method': 'match', 'regex': /hello|hi/
+        , 'message': '<%= lpath %> must match /hello|hi/'}
+      , {'path': '^ignore.0$', 'method': 'enum', 'values': [{'longitude': 1323, 'latitude': 2234}]
+        , 'message': 'ignore.0 must match [{longitude: 1323, latitude: 2234}]'}
+      , {'path': '^ignore$', 'method': function(){
           return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 4;
         }, 'message': 'ignore needs at least four elements'}
+      , {'path': '^ignore.$$.longitude$', 'method': function(val, path){
+          return val > 160;
+        }, 'message': '<%= lpath %> must be greater than 160'}
       ]
     , 'schema': {
         'name': 'string'
@@ -117,10 +120,141 @@
       , 'dependencies.frog': 'boolean'
       , 'ignore': 'array'
       }
+    , 'viewSchema': {
+        'addable': false
+      , 'removable': false
+      , 'subschemas': {
+          'dependencies': {
+            'addable': false
+          , 'removable': false
+          , 'child': {
+            'addable': false
+          , 'removable': false
+            }
+          }
+        , 'ignore': {
+            'removable': false
+          , 'child': {
+              'schema': {
+                '': 'object'
+              , 'longitude': 'number'
+              , 'latitude': 'number'
+              }
+            , 'child': {
+                'removable': false
+              }
+            , 'addable': false
+            }
+          }
+        }
+      }
     });
 
-    gb.doc.set('', gb.obj);
+    gb.doc.set('', gb.obj);*/
 
+    gb.obj = {
+      "name": "bootheel",
+      "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
+      "version": "0.0.1",
+      "number": 1211321,
+      "homepage": "",
+      "license": "MIT",
+      "copyright": "Ben Sack",
+      "main": "dist/bootheel.js",
+      "dependencies": {
+        "underscore": "*"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      },
+      "devDependencies": {
+        "assert": "*",
+        "blanket": {
+        "underscore": "*"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      }
+      },
+      "ignore": [
+        "test",
+        "example",
+        "lib",
+        "Gruntfile.js",
+        "package.json",
+        "grunt"
+      ]
+    };
+
+    gb.model = _$.model();
+
+    gb.doc = new gb.model({
+      'views': {
+        'view': {'name': 'view', 'method': 'mutableControl', 'container': {'selector': 'form', 'method': 'html'}}
+      }
+    , 'value': gb.obj
+    , 'validations': [
+        {'path': 'name', 'method': 'required', 'message': 'name is required'}
+      , {'path': '^dependencies.underscore$', 'method': 'match', 'regex': /hello|hi/
+        , 'message': '<%= lpath %> must match /hello|hi/'}
+      , {'path': '^ignore.0$', 'method': 'enum', 'values': ['css', 'js', 'html']
+        , 'message': 'ignore.0 must match [<%= values.join(", ") %>]'}
+      , {'path': '^ignore$', 'method': function(){
+          return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 4;
+        }, 'message': 'ignore needs at least four elements'}
+      ]
+    , 'schema': {
+        'name': 'string'
+      , 'dependencies': 'object'
+      , 'dependencies.frog': 'boolean'
+      , 'devDependencies': 'object'
+      , 'devDependencies.dog': 'object'
+      , 'ignore': 'array'
+      }
+    , 'viewSchema': {
+        'addable': false
+      , 'removable': false
+      , 'subschemas': {
+          'dependencies': {
+            'addable': false
+          , 'removable': false
+          , 'child': {
+            'addable': false
+          , 'removable': false
+            }
+          }
+        , 'devDependencies': {
+            'subschemas': {
+              'dog': {
+                'removable': false
+              , 'child': {
+                  '$control': 'datetimeControl'
+                , 'removable': false
+                }
+              }
+            }
+          }
+        , 'ignore': {
+            'removable': false
+          , 'child': {
+              'schema': {
+                '': 'string'
+              }
+            }
+          }
+        }
+      }
+    });
   </script>
 </body>
 </html>

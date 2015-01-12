@@ -3593,3 +3593,816 @@ suite('custom-controls', function(){
     return done();
   });
 });
+
+suite('schemas', function(){
+  setup(function(){
+    return $('#fixture').html('');
+  });
+  teardown(function(){
+    return $('#fixture').html('');
+  });
+
+  test('objectControl-schema', function(done){
+    gb.obj = {
+      'string': 'string'
+    , 'number': 1234
+    , 'boolean': true
+    , 'object': {
+        'string': 'string'
+      , 'number': 1234
+      , 'boolean': true
+      }
+    , 'array': [
+        'string'
+      , 1234
+      , true
+      ]
+    };
+
+    gb.schema = {
+      '': 'object'
+    , 'string': 'string'
+    , 'number': 'number'
+    , 'boolean': 'boolean'
+    , 'object': 'object'
+    , 'array': 'array'
+    };
+
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'autoconform': true};
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();
+    $('#fixture').append(gb.el.$el);
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 9);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.val = {
+      'string': ''
+    , 'boolean': false
+    , 'object': {}
+    , 'array': []
+    , 'number': undefined
+    };
+
+    gb.el.set({});
+    assert.ok(Belt.equal(gb.val, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 3);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.el.set(undefined);
+    assert.ok(Belt.equal(gb.val, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 3);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.el.set('');
+    assert.ok(Belt.equal(gb.val, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 3);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.el.set([]);
+    assert.ok(Belt.equal(gb.val, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 3);
+
+    gb.el.set(false);
+    assert.ok(Belt.equal(gb.val, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 3);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.el.setPath('boolean', 'string');
+    assert.ok(gb.el.getPath('boolean') === true);
+    assert.ok(gb.el.$('.add').length === 3);
+    gb.el.setPath('boolean', '');
+    assert.ok(gb.el.getPath('boolean') === false);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    assert.ok(gb.el.$('input').length === 3);
+    assert.ok(Belt.equal(gb.val, gb.el.get()));
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.el.deletePath('array');
+    setTimeout(function(){
+      assert.ok(Belt.equal(gb.el.getPath('array'), []));
+      assert.ok(Belt.equal(gb.val, gb.el.get()));
+      assert.ok(gb.el.$('input').length === 3);
+      assert.ok(gb.el.$('.add').length === 3);
+      return done();
+    }, 600);
+  });
+
+  test('objectControl-schema-2', function(done){
+    gb.obj = {
+      'string': 'string'
+    , 'number': 1234
+    , 'boolean': true
+    , 'object': {
+        'string': 'string'
+      , 'number': 1234
+      , 'boolean': true
+      }
+    , 'array': [
+        'string'
+      , 1234
+      , true
+      ]
+    };
+
+    gb.schema = {
+      'string': 'string'
+    , 'number': 'number'
+    , 'boolean': 'boolean'
+    , 'object': 'object'
+    , 'array': 'array'
+    };
+
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'autoconform': true};
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();
+    $('#fixture').append(gb.el.$el);
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 9);
+    assert.ok(gb.el.$('.add').length === 3);
+
+    gb.el.addPath('mutableControl', {'value': Belt.uuid(), 'name': 'randomPath'});
+
+    return setTimeout(function(){
+      assert.ok(Belt.equal(gb.obj, gb.el.get()));
+      assert.ok(gb.el.$('input').length === 9);
+      assert.ok(gb.el.$('.add').length === 3);
+      return done();
+    }, 700);
+  });
+
+  test('objectControl-array-child', function(done){
+    gb.obj = ['dog'];
+    gb.schema = {'': 'array'};
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'removable': false, 'addable': true
+            , 'child': {'$control': 'selectControl', 'value': 'dog', 'values': ['dog', 'cat'], 'removable': false}};
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();
+    $('#fixture').append(gb.el.$el);
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('select').length === 1);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+
+    gb.el.push('one more');
+    assert.ok(gb.el.$('select').length === 2);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['dog', null], gb.el.get()));
+
+    gb.el.push('cat');
+    assert.ok(gb.el.$('select').length === 3);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['dog', null, 'cat'], gb.el.get()));
+
+    gb.el.unshift('cat');
+    assert.ok(gb.el.$('select').length === 4);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['cat', 'dog', null, 'cat'], gb.el.get()));
+
+    gb.el.move(0, 1);
+    assert.ok(gb.el.$('select').length === 4);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['dog', 'cat', null, 'cat'], gb.el.get()));
+
+    gb.el.pop();
+    assert.ok(gb.el.$('select').length === 3);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['dog', 'cat', null], gb.el.get()));
+
+    gb.el.shift();
+    assert.ok(gb.el.$('select').length === 2);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['cat', null], gb.el.get()));
+
+    gb.el.setPath('1', 'dog');
+    assert.ok(gb.el.$('select').length === 2);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal(['cat', 'dog'], gb.el.get()));
+
+    gb.el.setPath('0', Belt.uuid());
+    assert.ok(gb.el.$('select').length === 2);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+    assert.ok(Belt.equal([null, 'dog'], gb.el.get()));
+
+    return done();
+  });
+
+  test('objectControl-array-child-2', function(done){
+    gb.schema = {'': 'array'};
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'removable': false, 'addable': true
+            , 'child': {'$control': 'selectControl', 'values': ['dog', 'cat'], 'removable': false}};
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();
+    $('#fixture').append(gb.el.$el);
+
+    gb.obj = ['cat', 'cat', 'cat'];
+    gb.el.set(gb.obj);
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('select').length === 3);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 0);
+
+    return done();
+  });
+
+  test('objectControl-array-child-3', function(done){
+    gb.obj = {};
+    gb.schema = {'': 'object', 'name': 'string', 'dog': 'array'};
+    gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'removable': false, 'addable': false
+            , 'subschemas': {
+                'dog': {
+                  'child': {
+                    'schema': {'': 'object', 'name': 'string', 'breed': 'string'}
+                  , 'removable': false, 'addable': false
+                  , 'subschemas': {
+                      'breed': {
+                        '$control': 'selectControl', 'values': ['lab', 'frenchie', 'terrier'], 'removable': false
+                      }
+                    , 'name': {
+                        'removable': false
+                      }
+                    }
+                  }
+                }
+              }
+            };
+
+    gb.el = _$.mutableControl(gb.vw);
+    gb.el.render();
+    $('#fixture').append(gb.el.$el);
+
+    gb.obj = {'name': '', 'dog': []}
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length === 1);
+    assert.ok(gb.el.$('select').length === 0);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 2);
+
+    gb.el.getView('dog').push();
+
+    gb.obj = {'name': '', 'dog': [{'name': '', 'breed': ''}]}
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length >= 2);
+    assert.ok(gb.el.$('select').length === 1);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 2);
+
+    gb.el.getView('dog').push({'breed': 'lab'});
+
+    gb.obj = {'name': '', 'dog': [{'name': '', 'breed': ''}, {'name': '', 'breed': 'lab'}]}
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length >= 2);
+    assert.ok(gb.el.$('select').length === 2);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 2);
+
+    gb.el.getView('dog').unshift({'breed': 'frenchie'});
+
+    gb.obj = {'name': '', 'dog': [{'name': '', 'breed': 'frenchie'}, {'name': '', 'breed': ''}, {'name': '', 'breed': 'lab'}]}
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length >= 3);
+    assert.ok(gb.el.$('select').length === 3);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 2);
+
+    gb.el.getView('dog').pop();
+
+    gb.obj = {'name': '', 'dog': [{'name': '', 'breed': 'frenchie'}, {'name': '', 'breed': ''}]}
+
+    assert.ok(Belt.equal(gb.obj, gb.el.get()));
+    assert.ok(gb.el.$('input').length >= 2);
+    assert.ok(gb.el.$('select').length === 2);
+    assert.ok(gb.el.$('.add').length === 1);
+    assert.ok(gb.el.$('.add.child').length === 1);
+    assert.ok(gb.el.$('.remove').length === 2);
+
+    return done();
+  });
+});
+
+suite('models', function(){
+  setup(function(){
+    return $('#fixture').html('');
+  });
+  teardown(function(){
+    return $('#fixture').html('');
+  });
+
+  test('basic-model', function(done){
+
+    gb.obj = {
+      "name": "bootheel",
+      "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
+      "version": "0.0.1",
+      "number": 1211321,
+      "homepage": "",
+      "license": "MIT",
+      "copyright": "Ben Sack",
+      "main": "dist/bootheel.js",
+      "dependencies": {
+        "underscore": "*"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      },
+      "devDependencies": {
+        "assert": "*",
+        "blanket": {
+        "underscore": "*"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      }
+      },
+      "ignore": [
+        "test",
+        "example",
+        "lib",
+        "Gruntfile.js",
+        "package.json",
+        "grunt"
+      ]
+    };
+
+    gb.model = _$.model();
+
+    gb.doc = new gb.model({
+      'views': {
+        'view': {'name': 'view', 'method': 'mutableControl', 'container': {'selector': 'form', 'method': 'html'}}
+      }
+    , 'value': gb.obj
+    , 'validations': [
+        {'path': 'name', 'method': 'required', 'message': 'name is required'}
+      , {'path': 'dependencies.underscore', 'method': 'match', 'regex': /hello|hi/
+        , 'message': '<%= lpath %> must match /hello|hi/'}
+      , {'path': '^ignore.0$', 'method': 'enum', 'values': ['css', 'js', 'html']
+        , 'message': 'ignore.0 must match [<%= values.join(", ") %>]'}
+      , {'path': '^ignore$', 'method': function(){
+          return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 4;
+        }, 'message': 'ignore needs at least four elements'}
+      ]
+    , 'schema': {
+        'name': 'string'
+      , 'dependencies': 'object'
+      , 'dependencies.frog': 'boolean'
+      , 'devDependencies': 'object'
+      , 'devDependencies.dog': 'object'
+      , 'ignore': 'array'
+      }
+    , 'viewSchema': {
+        'addable': false
+      , 'removable': false
+      , 'subschemas': {
+          'dependencies': {
+            'addable': false
+          , 'removable': false
+          , 'child': {
+            'addable': false
+          , 'removable': false
+            }
+          }
+        , 'devDependencies': {
+            'subschemas': {
+              'dog': {
+                'removable': false
+              , 'child': {
+                  '$control': 'datetimeControl'
+                , 'removable': false
+                }
+              }
+            }
+          }
+        , 'ignore': {
+            'removable': false
+          , 'child': {
+              'schema': {
+                '': 'string'
+              }
+            }
+          }
+        }
+      }
+    });
+
+    gb.val = {
+      "name": "bootheel",
+      "dependencies": {
+        "underscore": "*"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      , "frog": false
+      },
+      "devDependencies": {
+        "assert": "*",
+        "blanket": {
+        "underscore": "*"
+        , "jsbelt": "*"
+        , "moment": "*"
+        , "jquery": "*"
+        , "bootstrap": "*"
+        , "backbone": "*"
+        , "bootstrap-multiselect": "*"
+        , "bootstrap-fileinput": "*"
+        , "jquery-file-upload": "*"
+        }
+      , 'dog': {}
+      },
+      "ignore": [
+        "test",
+        "example",
+        "lib",
+        "Gruntfile.js",
+        "package.json",
+        "grunt"
+      ]
+    };
+
+    gb.view = gb.doc.$views.view;
+
+    this.timeout(10000);
+
+    return async.waterfall([
+      function(cb){
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        assert.ok(Belt.equal(gb.view.getView('dependencies.underscore').getStatus()
+        , {state: "error", status: ["dependencies.underscore must match /hello|hi/"]}));
+        assert.ok(Belt.equal(gb.view.getView('ignore.0').getStatus()
+        , {state: "error", status: ["ignore.0 must match [css, js, html]"]}));
+
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': "dependencies.underscore must match /hello|hi/", 'path': 'dependencies.underscore'}
+        , {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1'), gb.val.ignore[1]));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1323'), undefined));
+        assert.ok(Belt.equal(gb.doc.get('name'), gb.val.name));
+
+        assert.ok(gb.view.$('legend').length === 6);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|blanket|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+        assert.ok(gb.view.$('.form-group[data-name="name"] input').val() === gb.val.name);
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('devDependencies.blanket'), function(v, k){
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="blanket"] .form-group[data-name="' + k + '"] .remove')));
+        });
+        assert.ok(_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"] .remove')));
+
+        gb.doc.set('devDependencies', {}, {'conform': true});
+        return cb();
+      }
+    , function(cb){
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.devDependencies = {'dog': {}};
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': "dependencies.underscore must match /hello|hi/", 'path': 'dependencies.underscore'}
+        , {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.set('name', '')
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.name = '';
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.view.getView('name').getStatus()
+        , {state: "error", status: ["name is required"]}));
+
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'name is required', 'path': 'name'}
+        , {'message': "dependencies.underscore must match /hello|hi/", 'path': 'dependencies.underscore'}
+        , {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.unset('name');
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        Belt.delete(gb, 'val.name');
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.view.getStatus()
+        , {state: "error", status: ["name is required"]}));
+
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'name is required', 'path': 'name'}
+        , {'message': "dependencies.underscore must match /hello|hi/", 'path': 'dependencies.underscore'}
+        , {'message': 'ignore.0 must match [css, js, html]', 'path': 'ignore.0'}
+        ]));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(!_.any(gb.view.$('.form-group[data-name="name"]')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        gb.doc.set('ignore.0', 'css');
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.ignore[0] = 'css';
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'name is required', 'path': 'name'}
+        , {'message': "dependencies.underscore must match /hello|hi/", 'path': 'dependencies.underscore'}
+        ]));
+
+        gb.doc.set('dependencies.underscore', 'hello');
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.dependencies.underscore = 'hello';
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+
+        assert.ok(Belt.equal(gb.doc.validate(), [
+          {'message': 'name is required', 'path': 'name'}
+        ]));
+
+        gb.doc.set('name', 'hello');
+
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        gb.val.name = 'hello';
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.validate(), []));
+
+        assert.ok(gb.view.$('legend').length === 5);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="blanket"]')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="blanket"]')));
+        assert.ok(!_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"]')));
+
+        return setTimeout(cb, 100);
+      }
+    ], function(err){
+      assert.ok(!err);
+      return done();
+    });
+  });
+});
