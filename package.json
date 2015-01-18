@@ -5,5 +5,12 @@
   "devDependencies": {
     "fatjs": "~0.1.0",
     "grunt": "~0.4.0"
+  , "ap1": "git://github.com/sackio/ap1.git#master"
+  , "async": "*"
+  , "underscore": "*"
+  , "jsbelt": "*"
+  , "optionall": "*"
+  , "fstk": "*"
+  , "winston": "*"
   }
 }

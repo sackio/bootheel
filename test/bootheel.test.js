@@ -3925,7 +3925,10 @@ suite('models', function(){
 
   test('basic-model', function(done){
 
+    gb.uuid = Belt.uuid();
+
     gb.obj = {
+      "_id": gb.uuid,
       "name": "bootheel",
       "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
       "version": "0.0.1",
@@ -3993,6 +3996,7 @@ suite('models', function(){
       , 'devDependencies': 'object'
       , 'devDependencies.dog': 'object'
       , 'ignore': 'array'
+      , '_id': 'string'
       }
     , 'viewSchema': {
         'addable': false
@@ -4030,6 +4034,7 @@ suite('models', function(){
     });
 
     gb.val = {
+      "_id": gb.uuid,
       "name": "bootheel",
       "dependencies": {
         "underscore": "*"
@@ -4070,7 +4075,7 @@ suite('models', function(){
 
     gb.view = gb.doc.$views.view;
 
-    this.timeout(20000);
+    this.timeout(200000);
 
     return async.waterfall([
       function(cb){

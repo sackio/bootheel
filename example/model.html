@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
   <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
 
+  <script src="/socket.io/socket.io.js"></script>
   <script src="../bower_components/underscore/underscore-min.js"></script>
   <script src="../bower_components/jsbelt/lib/belt.js"></script>
   <script src="../bower_components/async/lib/async.js"></script>
@@ -154,6 +155,7 @@
     gb.doc.set('', gb.obj);*/
 
     gb.obj = {
+      "_id": '1234',
       "name": "bootheel",
       "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
       "version": "0.0.1",
@@ -206,10 +208,10 @@
     , 'value': gb.obj
     , 'validations': [
         {'path': 'name', 'method': 'required', 'message': 'name is required'}
-      , {'path': '^dependencies.underscore$', 'method': 'match', 'regex': /hello|hi/
-        , 'message': '<%= lpath %> must match /hello|hi/'}
-      , {'path': '^ignore.0$', 'method': 'enum', 'values': ['css', 'js', 'html']
-        , 'message': 'ignore.0 must match [<%= values.join(", ") %>]'}
+      //, {'path': '^dependencies.underscore$', 'method': 'match', 'regex': /hello|hi/
+      //  , 'message': '<%= lpath %> must match /hello|hi/'}
+      //, {'path': '^ignore.0$', 'method': 'enum', 'values': ['css', 'js', 'html']
+      //  , 'message': 'ignore.0 must match [<%= values.join(", ") %>]'}
       , {'path': '^ignore$', 'method': function(){
           return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 4;
         }, 'message': 'ignore needs at least four elements'}
@@ -221,6 +223,7 @@
       , 'devDependencies': 'object'
       , 'devDependencies.dog': 'object'
       , 'ignore': 'array'
+      , '_id': 'string'
       }
     , 'viewSchema': {
         'addable': false
