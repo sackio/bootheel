@@ -4,3 +4,10 @@ bower_components
 reports
 dist/_bower.js
 *.log
+config.json
+data
+assets/uploads
+assets/data
+test/data
+bower_components
+*.log
