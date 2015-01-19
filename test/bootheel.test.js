@@ -4804,4 +4804,388 @@ suite('models', function(){
       return done();
     });
   });
+
+  test('model-syncing', function(done){
+
+    gb.uuid = Belt.uuid();
+
+    gb.obj = {
+      "_id": gb.uuid,
+      "name": "bootheel",
+      "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
+      "version": "0.0.1",
+      "number": 1211321,
+      "homepage": "",
+      "license": "MIT",
+      "copyright": "Ben Sack",
+      "main": "dist/bootheel.js",
+      "dependencies": {
+        "underscore": "hello"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      },
+      "devDependencies": {
+        "assert": "*",
+        "blanket": {
+        "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      }
+      },
+      "ignore": [
+        "js",
+        "example",
+        "lib",
+        "Gruntfile.js",
+        "package.json",
+        "grunt"
+      ]
+    };
+
+    gb.model = _$.model();
+
+    gb.doc = new gb.model({
+      'views': {
+        'view': {'name': 'view', 'method': 'mutableControl', 'container': {'selector': 'form', 'method': 'html'}}
+      }
+    , 'value': gb.obj
+    , 'validations': [
+        {'path': 'name', 'method': 'required', 'message': 'name is required'}
+      , {'path': '^dependencies.underscore$', 'method': 'match', 'regex': /hello|hi/
+        , 'message': '<%= lpath %> must match /hello|hi/'}
+      , {'path': '^ignore.0$', 'method': 'enum', 'values': ['css', 'js', 'html']
+        , 'message': 'ignore.0 must match [<%= values.join(", ") %>]'}
+      , {'path': '^ignore$', 'method': function(){
+          return Belt.isNull(this.get('ignore')) || this.get('ignore').length > 4;
+        }, 'message': 'ignore needs at least four elements'}
+      ]
+    , 'schema': {
+        'name': 'string'
+      , 'dependencies': 'object'
+      , 'dependencies.frog': 'boolean'
+      , 'devDependencies': 'object'
+      , 'devDependencies.dog': 'object'
+      , 'ignore': 'array'
+      , '_id': 'string'
+      }
+    , 'viewSchema': {
+        'addable': false
+      , 'removable': false
+      , 'subschemas': {
+          'dependencies': {
+            'addable': false
+          , 'removable': false
+          , 'child': {
+            'addable': false
+          , 'removable': false
+            }
+          }
+        , 'devDependencies': {
+            'subschemas': {
+              'dog': {
+                'removable': false
+              , 'child': {
+                  '$control': 'datetimeControl'
+                , 'removable': false
+                }
+              }
+            }
+          }
+        , '_id': {
+            'readonly': true
+          , 'removable': false
+          }
+        , 'ignore': {
+            'removable': false
+          , 'child': {
+              'schema': {
+                '': 'string'
+              }
+            }
+          }
+        }
+      }
+    , 'defaults': {
+        '_id': gb.uuid
+      }
+    , 'defaultCast': 'object'
+    });
+
+    gb.doc.getView().getButtons().append('<button class="btn btn-info save">Save</button>'
+                                        +'<button class="btn btn-default fetch">Refresh</button>'
+                                        +'<button class="btn btn-danger destroy">Destroy</button>');
+
+    gb.val = {
+      "_id": gb.uuid,
+      "name": "bootheel",
+      "dependencies": {
+        "underscore": "hello"
+      , "jsbelt": "*"
+      , "moment": "*"
+      , "jquery": "*"
+      , "bootstrap": "*"
+      , "backbone": "*"
+      , "bootstrap-multiselect": "*"
+      , "bootstrap-fileinput": "*"
+      , "jquery-file-upload": "*"
+      , "frog": false
+      },
+      "devDependencies": {
+        "assert": "*",
+        "blanket": {
+          "jsbelt": "*"
+        , "moment": "*"
+        , "jquery": "*"
+        , "bootstrap": "*"
+        , "backbone": "*"
+        , "bootstrap-multiselect": "*"
+        , "bootstrap-fileinput": "*"
+        , "jquery-file-upload": "*"
+        }
+      , 'dog': {}
+      },
+      "ignore": [
+        "js",
+        "example",
+        "lib",
+        "Gruntfile.js",
+        "package.json",
+        "grunt"
+      ]
+    };
+
+    gb.view = gb.doc.$views.view;
+
+    this.timeout(200000);
+
+    return async.waterfall([
+      function(cb){
+        return setTimeout(cb, 100);
+      }
+    , function(cb){
+        assert.ok(Belt.equal(gb.doc.validate(), []));
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1'), gb.val.ignore[1]));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1323'), undefined));
+        assert.ok(Belt.equal(gb.doc.get('name'), gb.val.name));
+
+        assert.ok(gb.view.$('legend').length === 6);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|blanket|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+        assert.ok(gb.view.$('.form-group[data-name="name"] input').val() === gb.val.name);
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('devDependencies.blanket'), function(v, k){
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="blanket"] .form-group[data-name="' + k + '"] .remove')));
+        });
+        assert.ok(_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"] .remove')));
+
+        assert.ok(gb.doc.getView().getButtons().find('.save').length === 1);
+        assert.ok(gb.doc.getView().getButtons().find('.fetch').length === 1);
+        assert.ok(gb.doc.getView().getButtons().find('.destroy').length === 1);
+
+        assert.ok(gb.doc.$lastSync === undefined);
+
+        gb.doc.save();
+        return setTimeout(cb, 1000);
+      }
+    , function(cb){
+        assert.ok(gb.doc.get());
+        assert.ok(Belt.equal(gb.doc.get(), gb.doc.$lastSync));
+
+        gb.doc.set('name', 'doggy');
+        gb.oval = Belt.copy(gb.val);
+        gb.val.name = 'doggy';
+
+        assert.ok(Belt.equal(gb.doc.validate(), []));
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1'), gb.val.ignore[1]));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1323'), undefined));
+        assert.ok(Belt.equal(gb.doc.get('name'), gb.val.name));
+
+        assert.ok(gb.view.$('legend').length === 6);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|blanket|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+        assert.ok(gb.view.$('.form-group[data-name="name"] input').val() === gb.val.name);
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('devDependencies.blanket'), function(v, k){
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="blanket"] .form-group[data-name="' + k + '"] .remove')));
+        });
+        assert.ok(_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"] .remove')));
+
+        assert.ok(gb.doc.getView().getButtons().find('.save').length === 1);
+        assert.ok(gb.doc.getView().getButtons().find('.fetch').length === 1);
+        assert.ok(gb.doc.getView().getButtons().find('.destroy').length === 1);
+
+        assert.ok(!Belt.equal(gb.doc.get(), gb.doc.$lastSync));
+
+        gb.doc.fetch();
+        return setTimeout(cb, 1000);
+      }
+    , function(cb){
+        assert.ok(gb.doc.get());
+        assert.ok(Belt.equal(gb.doc.get(), gb.doc.$lastSync));
+
+        gb.val = Belt.copy(gb.oval);
+
+        assert.ok(Belt.equal(gb.doc.validate(), []));
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.val));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1'), gb.val.ignore[1]));
+        assert.ok(Belt.equal(gb.doc.get('ignore.1323'), undefined));
+        assert.ok(Belt.equal(gb.doc.get('name'), gb.val.name));
+
+        assert.ok(gb.view.$('legend').length === 6);
+        _.each(gb.view.$('legend'), function(e){
+          return assert.ok($(e).text().match(/^(view|dependencies|devDependencies|dog|blanket|ignore)$/));
+        });
+
+        _.each(Belt.objFlatten(gb.doc.get(), {'deepest': true}), function(v, k){
+          if (k === 'devDependencies.dog') return;
+          if (k !== 'dependencies.frog') assert.ok(gb.view.$('input[name="' + k.split('.').pop() + '"]').val() === v);
+
+          return assert.ok(_.any(gb.view.$('input[name="' + k.split('.').pop() + '"]')));
+        });
+        assert.ok(gb.view.$('input').length === _.keys(Belt.objFlatten(gb.doc.get(), {'deepest': true})).length - 1);
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="view"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .remove')));
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dependencies"] .add')));
+
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="devDependencies"] .add')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="blanket"] .add')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="dog"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="dog"] .add.child')));
+
+        assert.ok(!_.any(gb.view.$('.row.header[data-name="ignore"] .remove')));
+        assert.ok(_.any(gb.view.$('.row.header[data-name="ignore"] .child.add')));
+
+        assert.ok(_.any(gb.view.$('.form-group[data-name="name"] .remove')));
+        assert.ok(gb.view.$('.form-group[data-name="name"] input').val() === gb.val.name);
+
+        _.each(gb.doc.get('dependencies'), function(v, k){
+          return assert.ok(!_.any(gb.view.$('fieldset[data-name="dependencies"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('ignore'), function(v, k){
+          assert.ok(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] input').val() === v);
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="ignore"] .form-group[data-name="' + k + '"] .remove')));
+        });
+
+        _.each(gb.doc.get('devDependencies.blanket'), function(v, k){
+          return assert.ok(_.any(gb.view.$('fieldset[data-name="blanket"] .form-group[data-name="' + k + '"] .remove')));
+        });
+        assert.ok(_.any(gb.view.$('fieldset[data-name="devDependencies"] .form-group[data-name="assert"] .remove')));
+
+        assert.ok(gb.doc.getView().getButtons().find('.save').length === 1);
+        assert.ok(gb.doc.getView().getButtons().find('.fetch').length === 1);
+        assert.ok(gb.doc.getView().getButtons().find('.destroy').length === 1);
+
+        assert.ok(Belt.equal(gb.doc.get(), gb.doc.$lastSync));
+
+        gb.doc.destroy();
+        return setTimeout(cb, 1000);
+      }
+    , function(cb){
+        assert.ok(Belt.equal(gb.doc.get(), {}));
+        assert.ok(gb.doc.$lastSync === undefined);
+        return cb();
+      }
+    ], function(err){
+      assert.ok(!err);
+      return done();
+    });
+  });
+
 });

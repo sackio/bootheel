@@ -248,6 +248,10 @@
               }
             }
           }
+        , '_id': {
+            'readonly': true
+          , 'removable': false
+          }
         , 'ignore': {
             'removable': false
           , 'child': {
@@ -258,7 +262,29 @@
           }
         }
       }
+    , 'defaults': {
+        '_id': '1234'
+      }
+    , 'defaultCast': 'object'
     });
+
+  gb.doc.getView().getButtons().append('<button class="btn btn-info save">Save</button>'
+                                      +'<button class="btn btn-default fetch">Refresh</button>'
+                                      +'<button class="btn btn-danger destroy">Destroy</button>');
+
+  gb.doc.getView().getButtons().on('click', '> button.save', function(e){
+    e.preventDefault();
+    return gb.doc.save();
+  });
+  gb.doc.getView().getButtons().on('click', '> button.fetch', function(e){
+    e.preventDefault();
+    return gb.doc.fetch();
+  });
+  gb.doc.getView().getButtons().on('click', '> button.destroy', function(e){
+    e.preventDefault();
+    return gb.doc.destroy();
+  });
+
   </script>
 </body>
 </html>
