@@ -14,5 +14,6 @@
   , "winston": "*"
   , "locup": "*"
   , "pa1d": "*"
+  , "seme": "git://github.com/sackio/seme.git#master"
   }
 }

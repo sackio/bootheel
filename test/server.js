@@ -10,6 +10,7 @@ var Belt = require('jsbelt')
   , Winston = require('winston')
   , API = require('ap1')
   , Locup = require('locup')
+  , Paid = require('pa1d')
 ;
 
 var gb = {}
@@ -20,6 +21,8 @@ log.add(Winston.transports.Console, {'level': 'debug', 'colorize': true, 'timest
 
 gb.api = new API(O);
 gb.locup = new Locup(Belt.extend({'api_key': O.google.key}, O));
+gb.paid = new Paid(O);
+gb.braintree = Belt.get(gb, 'paid._provider._gateway');
 
 gb.data = {};
 
@@ -115,6 +118,15 @@ gb.api.http.addRoute('/file/create', function(o){
     }
   ], function(err){
     return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': _gb.data});
+  });
+}, {'method': 'post'});
+
+gb.api.http.addRoute('/payment/token/create', function(o){
+  var tk = {};
+  if (o.$data.customer) tk['customerId'] = o.$data.customer;
+
+  return gb.braintree.clientToken.generate(tk, function(err, res){
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': {'token': Belt.get(res, 'clientToken')}});
   });
 }, {'method': 'post'});
 

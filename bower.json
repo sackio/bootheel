@@ -19,6 +19,9 @@
   , "summernote": "*"
   , "ace": "*"
   , "bootbox": "*"
+  , "jquery-qrcode": "*"
+  , "jsbarcode": "*"
+  , "magicsuggest": "*"
   },
   "devDependencies": {
     "assert": "*",

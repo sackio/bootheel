@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Object View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/fontawesome/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+  <link rel="stylesheet" href="../bower_components/summernote/dist/summernote.css" />
+  <link rel="stylesheet" href="../bower_components/summernote/dist/summernote-bs3.css" />
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+  <script src="../bower_components/summernote/dist/summernote.min.js"></script>
+  <script src="../bower_components/ace/build/src/ace.js"></script>
+  <script src="../bower_components/ace/build/src/theme-eclipse.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/ace/build/src/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
+  <script src="https://js.braintreegateway.com/v2/braintree.js"></script>
+
+  <script src="../bower_components/jsbarcode/CODE39.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/jsbarcode/CODE128.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/jsbarcode/EAN_UPC.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/jsbarcode/ITF14.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/jsbarcode/pharmacode.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/jsbarcode/JsBarcode.js" type="text/javascript" charset="utf-8"></script>
+
+  <script src="../bower_components/jquery-qrcode/jquery.qrcode.min.js" type="text/javascript" charset="utf-8"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+
+    textarea {
+      resize: none;
+    }
+    
+    * {
+      white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      white-space: -pre-wrap;      /* Opera 4-6 */
+      white-space: -o-pre-wrap;    /* Opera 7 */
+      white-space: pre-wrap;       /* css-3 */
+      word-wrap: break-word;       /* Internet Explorer 5.5+ */
+      white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+      word-break: break-all;
+      white-space: normal;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+    <form class="form-horizontal">
+      <canvas id="barcode"></canvas>
+      <div id="qr"></div>
+    </form>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    gb = {};
+
+
+
+    gb.view = _$.objectControl();
+
+  </script>
+</body>
+</html>
