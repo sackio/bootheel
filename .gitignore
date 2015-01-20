@@ -6,8 +6,8 @@ dist/_bower.js
 *.log
 config.json
 data
-assets/uploads
-assets/data
+test/assets/uploads
+test/assets/data
 test/data
 bower_components
 *.log

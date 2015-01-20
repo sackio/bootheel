@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Object View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+
+    textarea {
+      resize: none;
+    }
+    
+    * {
+      white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      white-space: -pre-wrap;      /* Opera 4-6 */
+      white-space: -o-pre-wrap;    /* Opera 7 */
+      white-space: pre-wrap;       /* css-3 */
+      word-wrap: break-word;       /* Internet Explorer 5.5+ */
+      white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+      word-break: break-all;
+      white-space: normal;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+    <form class="form-horizontal">
+
+    </form>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    var gb = {};
+
+    gb.file1 = {
+      'label': 'file1'
+    , 'description': 'this is file1'
+    , 'file': {}
+    , 'details': {}
+    };
+
+    gb.view = _$.objectControl({
+      'value': gb.file1
+    , 'name': 'file1'
+    , 'addable': false
+    , 'removable': false
+    , 'child': {
+        'removable': false
+      , 'addable': false
+      }
+    , 'subschemas': {
+        'file': {
+          'child': {
+            'removable': false
+          , 'addable': false
+          }
+        , 'subschemas': {
+            'file_path': {
+              'removable': false
+            , 'addable': false
+            , 'readonly': true
+            }
+          , 'stat': {
+              'removable': false
+            , 'addable': false
+            , 'readonly': true
+            , 'child': {
+                'removable': false
+              , 'addable': false
+              , 'readonly': true
+              }
+            }
+          }
+        }
+      , 'description': {
+          '$control': 'textareaControl'
+        }
+      , 'details': {
+          'addable': true
+        }
+      }
+    });
+
+    gb.view.render();
+
+    gb.view.getView('details').$el.after('<hr><label><h4 class="text-warning">Upload a new file</h4></label><input name="upload" type="file"></input><hr>');
+    gb.view.$('input[name="upload"]').fileinput({
+      'showUpload': true
+    , 'maxFileCount': 1
+    , 'uploadUrl': '/file/create'
+    , 'uploadExtraData': function(){
+        return {'data': Belt.stringify(gb.view.get())};
+      }
+    });
+
+    gb.view.$('input[name="upload"]').on('fileuploaded', function(e, data){
+      var fd = Belt.get(data, 'response.data');
+      if (!fd) return gb.view.setStatus('Error occurred while uploading file');
+
+      gb.view.setStatus();
+      $(this).fileinput('reset');
+      $(this).fileinput('unlock');
+      return gb.view.set(fd);
+    });
+
+    $('form').html(gb.view.$el);
+
+  </script>
+</body>
+</html>

@@ -22,4 +22,5 @@ Underneath custom components, special effects, and pretty styles, most RESTful w
 * File uploads
 * Location
 * WYSIWYG editor
+* Bar codes
 * Select with options from remote source
