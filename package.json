@@ -12,5 +12,7 @@
   , "optionall": "*"
   , "fstk": "*"
   , "winston": "*"
+  , "locup": "*"
+  , "pa1d": "*"
   }
 }

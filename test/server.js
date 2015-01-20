@@ -8,7 +8,9 @@ var Belt = require('jsbelt')
   , Async = require('async')
   , _ = require('underscore')
   , Winston = require('winston')
-  , API = require('ap1');
+  , API = require('ap1')
+  , Locup = require('locup')
+;
 
 var gb = {}
   , log = new Winston.Logger()
@@ -17,6 +19,7 @@ var gb = {}
 log.add(Winston.transports.Console, {'level': 'debug', 'colorize': true, 'timestamp': false});
 
 gb.api = new API(O);
+gb.locup = new Locup(Belt.extend({'api_key': O.google.key}, O));
 
 gb.data = {};
 
@@ -58,6 +61,35 @@ gb.api.ws.addRoute('/model/destroy', function(o){
     , 'path': o.$data.path
     , 'echo': true
     }
+  });
+});
+
+gb.api.http.addRoute('/geocode', function(o){
+  return gb.locup.geocode(o.$data.address, function(err, d){
+    var data = {
+      'location.normalized_string': Belt.get(Belt.toArray(d), '0.formatted_address')
+    }
+    data['location.address'] = Belt.get(Belt.toArray(d), '0.address_components');
+    if (data['location.address']) data['location.address'] = gb.locup.address_components_to_obj(data['location.address']);
+
+    data['location.geo.coordinates.0'] = Belt.get(Belt.toArray(d), '0.geometry.location.lng');
+    data['location.geo.coordinates.1'] = Belt.get(Belt.toArray(d), '0.geometry.location.lat');
+
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': data});
+  });
+});
+
+gb.api.http.addRoute('/reverse_geocode', function(o){
+  return gb.locup.reverse_geocode(o.$data.latitude, o.$data.longitude, function(err, d){
+    var data = {
+      'location.normalized_string': Belt.get(Belt.toArray(d), '0.formatted_address')
+    }
+    if (!err){
+      data['location.address'] = Belt.get(Belt.toArray(d), '0.address_components');
+      if (data['location.address']) data['location.address'] = gb.locup.address_components_to_obj(data['location.address']);
+    }
+
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': data});
   });
 });
 

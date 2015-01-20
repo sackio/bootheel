@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Object View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+
+    textarea {
+      resize: none;
+    }
+    
+    * {
+      white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      white-space: -pre-wrap;      /* Opera 4-6 */
+      white-space: -o-pre-wrap;    /* Opera 7 */
+      white-space: pre-wrap;       /* css-3 */
+      word-wrap: break-word;       /* Internet Explorer 5.5+ */
+      white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+      word-break: break-all;
+      white-space: normal;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+    <form class="form-horizontal">
+
+    </form>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    var gb = {};
+
+    gb.loc1 = {
+      'label': 'loc1'
+    , 'location': {
+        'given_string': ''
+      , 'normalized_string': ''
+      , 'geo': {
+          'type': 'Point'
+        , 'coordinates': [
+            undefined, undefined
+          ]
+        }
+      , 'address': {}
+      }
+    , 'details': {}
+    };
+
+    gb.view = _$.objectControl({
+      'value': gb.loc1
+    , 'name': 'loc1'
+    , 'addable': false
+    , 'removable': false
+    , 'child': {
+        'removable': false
+      , 'addable': false
+      }
+    , 'subschemas': {
+        'location': {
+          'child': {
+            'removable': false
+          , 'addable': false
+          }
+        , 'subschemas': {
+            'normalized_string': {
+              'readonly': true
+            }
+          , 'geo': {
+              'child': {
+                'removable': false
+              , 'addable': false
+              }
+            , 'subschemas': {
+                'type': {
+                  'readonly': true
+                }
+              , 'coordinates': {
+                  'child': {
+                    'removable': false
+                  , 'addable': false
+                  , '$control': 'numberControl'
+                  }
+                }
+              }
+            }
+          , 'address': {
+              'child': {
+                'removable': false
+              , 'addable': false
+              }
+            }
+          }
+        }
+      , 'details': {
+          'addable': true
+        }
+      }
+    });
+
+    gb.view.render();
+
+    gb.view.getButtons().append('<button class="btn btn-info current-location">Current Location</button>'
+                               +'<button class="btn btn-default geocode">Geocode</button>'
+                               +'<button class="btn btn-default reverse-geocode">Reverse Geocode</button>');
+
+    gb.view.getView('location.geo.coordinates.0').$('label').html('longitude');
+    gb.view.getView('location.geo.coordinates.1').$('label').html('latitude');
+
+    gb.view.getCurrentLocation = function(){
+      var self = this;
+
+      if (!Belt.get(navigator, 'geolocation')) return self.setStatus('Geolocation is not supported in this browser');
+
+      return navigator.geolocation.getCurrentPosition(function(pos){
+        var long  = Belt.get(pos, 'coords.longitude')
+          , lat = Belt.get(pos, 'coords.latitude');
+
+        self.setStatus(!Belt.isNull(long) && !Belt.isNull(lat) ? undefined : 'Current location could not be retrieved');
+        self.setPath('location.geo.coordinates.0', long);
+        self.setPath('location.geo.coordinates.1', lat);
+
+        return;
+      }, function(err){
+        if (err) self.setStatus('Current location could not be retrieved');
+        return;
+      });
+    };
+
+    gb.view.geocode = function(addr){
+      var self = this;
+
+      addr  = Belt.isNull(addr) ? self.getPath('location.given_string') : addr;
+
+      if (Belt.isNull(addr) || Belt.isBlank(addr)) return self.setStatus('Given string is required', {'removable': true});
+
+      return $.getJSON('/geocode', {'address': addr}, function(data){
+        self.setStatus();
+        return _.each(Belt.get(data, 'data') || {}, function(v, k){
+          return self.setPath(k, v);
+        });
+      });
+    };
+
+    gb.view.reverseGeocode = function(lat, long){
+      var self = this;
+
+      long  = Belt.isNull(long) ? self.getPath('location.geo.coordinates.0') : long;
+      lat  = Belt.isNull(lat) ? self.getPath('location.geo.coordinates.1') : lat;
+
+      if (Belt.isNull(long) || Belt.isNull(lat)) return self.setStatus('Longitude and latitude are required', {'removable': true});
+
+      return $.getJSON('/reverse_geocode', {'latitude': lat, 'longitude': long}, function(data){
+        self.setStatus();
+        return _.each(Belt.get(data, 'data') || {}, function(v, k){
+          return self.setPath(k, v);
+        });
+      });
+    };
+
+    gb.view.getButtons().on('click', '> button.current-location', function(e){
+      e.preventDefault();
+      return gb.view.getCurrentLocation();
+    });
+
+    gb.view.getButtons().on('click', '> button.geocode', function(e){
+      e.preventDefault();
+      return gb.view.geocode();
+    });
+
+    gb.view.getButtons().on('click', '> button.reverse-geocode', function(e){
+      e.preventDefault();
+      return gb.view.reverseGeocode();
+    });
+
+    $('form').html(gb.view.$el);
+
+  </script>
+</body>
+</html>
