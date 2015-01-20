@@ -15,7 +15,9 @@
   , "backbone": "*"
   , "bootstrap-multiselect": "*"
   , "bootstrap-fileinput": "*"
-  , "jquery-file-upload": "*"
+  , "fontawesome": "*"
+  , "summernote": "*"
+  , "ace": "*"
   , "bootbox": "*"
   },
   "devDependencies": {
