@@ -113,7 +113,8 @@
 
     gb.view.render();
 
-    gb.view.getView('details').$el.after('<hr><label><h4 class="text-warning">Upload a new file</h4></label><input name="upload" type="file"></input><hr>');
+    gb.view.getView('details').$el.after('<hr><label><h4 class="text-warning">Upload new file</h4></label><input name="upload" type="file"></input><hr>');
+
     gb.view.$('input[name="upload"]').fileinput({
       'showUpload': true
     , 'maxFileCount': 1
@@ -131,6 +132,44 @@
       $(this).fileinput('reset');
       $(this).fileinput('unlock');
       return gb.view.set(fd);
+    });
+
+    gb.view.getView('file').$el.before('<div class="preview"></div>');
+
+    gb.view.renderPreview = function(options){
+      var o = options || {}
+        , self = this;
+
+      o = _.defaults(o, {
+        'path': self.getPath('file.file_path')
+      , 'url': '/test/assets/data/'
+      });
+
+      if (!o.path) return gb.view.$('.preview').html('');
+
+      var html = '<hr>';
+      if (o.path.match(/\.(png|jpg|jpeg|gif|wepb|svg|gifv|bmp)$/i)){
+        html += '<img class="img-responsive" style="max-height:600px;" src="' + o.url + o.path + '">'
+      } else if (o.path.match(/\.(webm|ogg|mp4)$/i)){
+        html += '<video class="img-responsive" style="max-height:600px;" controls>';
+          html += '<source src="' + o.url + o.path + '" type="video/' + o.path.match(/\.(webm|ogg|mp4)$/i)[1] + '">';
+        html += '</video>';
+      } else {
+        html += '<iframe class="img-responsive" style="max-height:600px;" src="' + o.url + o.path + '"></iframe>';
+      }
+
+      html += '<hr><a href="' + o.url + o.path + '" target="_blank" class="btn btn-primary">View File</a>';
+      html += '<hr>'
+
+      return gb.view.$('.preview').html(html);
+    };
+
+    gb.view.throtRenderPreview = _.throttle(gb.view.renderPreview, 2000);
+
+    gb.view.on('change', function(data){
+      var p = Belt.get(data, 'val.file_path');
+      if (p) gb.view.throtRenderPreview();
+      return;
     });
 
     $('form').html(gb.view.$el);
