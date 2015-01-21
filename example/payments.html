@@ -15,6 +15,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="../bower_components/underscore/underscore-min.js"></script>
   <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/async/lib/async.js"></script>
   <script src="../bower_components/moment/min/moment.min.js"></script>
   <script src="../bower_components/jquery/dist/jquery.min.js"></script>
   <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -90,6 +91,7 @@
     , 'addable': false
     , 'removable': false
     , 'client_token_url': '/payment/token/create'
+    , 'create_account_url': '/payment/account/create'
     , 'value': {
         'number': ''
       , 'cardholderName': ''
@@ -150,6 +152,8 @@
             'customer': self.$customer
           });
 
+          if (!self.$client) errors.push('Cannot reach payment processor');
+
           if (!card.number) errors.push('Number is required');
           if (!card.cardholderName) errors.push('Cardholder name is required');
           if (!card.expirationMonth) errors.push('Expiration month is required');
@@ -162,20 +166,30 @@
 
           return async.waterfall([
             function(cb){
-
+              return self.$client.tokenizeCard(card, Belt.cs(cb, _gb, 'paymentMethodNonce', 1, 0));
             }
           , function(cb){
-
+              return $.post(self.settings.create_account_url, Belt.extend({}, _gb, a.o), Belt.cs(cb, _gb, 'res', 0));
             }
           ], function(err){
+            if (!err && _gb.res.error) err = new Error(_gb.res.error);
 
-          }
+            if (!err) self.set(self.settings.value);
+
+            return a.cb(err, _gb.res.data);
+          });
         }
       }
     , 'events': {
         'click button.submit': function(e){
           e.preventDefault();
-          return this.submitCard();
+          var self = this;
+          return self.submitCard(function(err, data){
+            if (err) return self.setStatus(err.message);
+
+            self.setStatus();
+            return gb.view.$el.after('<hr><div class="thumbnail"><div class="caption"><p><img src="' + data.creditCards[0].imageUrl + '" style="margin-right:10px;"> ' + data.creditCards[0].maskedNumber + '<p></div></div>');
+          });
         }
       }
     });

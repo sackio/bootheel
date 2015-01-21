@@ -183,12 +183,8 @@ gb.api.http.addRoute('/payment/token/create', function(o){
 }, {'method': 'post'});
 
 gb.api.http.addRoute('/payment/account/create', function(o){
-  var tk = {};
-  if (o.$data.customer) tk['customerId'] = o.$data.customer;
-
-  return gb.braintree.clientToken.generate(tk, function(err, res){
-
-    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': {'token': Belt.get(res, 'clientToken')}});
+  return gb.paid.create_customer(o.$data, function(err, res){
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': res});
   });
 }, {'method': 'post'});
 
