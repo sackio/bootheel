@@ -72,17 +72,17 @@
 <body>
   <div id="fixture">
     <form class="form-horizontal">
-      <canvas id="barcode"></canvas>
-      <div id="qr"></div>
     </form>
   </div>
   <script src="../lib/bootheel.js" data-cover></script>
   <script>
     gb = {};
 
+    gb.view = _$.barcodeControl({'name': 'test', 'value': 'donkey'});
 
+    $('#fixture form').append(gb.view.$el);
 
-    gb.view = _$.objectControl();
+    gb.view.render();
 
   </script>
 </body>
