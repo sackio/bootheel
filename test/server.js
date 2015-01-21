@@ -96,6 +96,32 @@ gb.api.http.addRoute('/reverse_geocode', function(o){
   });
 });
 
+gb.api.http.addRoute('/location/geocode', function(o){
+  return gb.locup.geocode(o.$data.address, function(err, d){
+    d = Belt.toArray(d);
+    var data = {
+      'address': Belt.get(d, '0.formatted_address')
+    , 'longitude': Belt.get(d, '0.geometry.location.lng')
+    , 'latitude': Belt.get(d, '0.geometry.location.lat')
+    }
+
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': data});
+  });
+});
+
+gb.api.http.addRoute('/location/reverse_geocode', function(o){
+  return gb.locup.reverse_geocode(o.$data.latitude, o.$data.longitude, function(err, d){
+    d = Belt.toArray(d);
+    var data = {
+      'address': Belt.get(d, '0.formatted_address')
+    , 'longitude': Belt.get(d, '0.geometry.location.lng')
+    , 'latitude': Belt.get(d, '0.geometry.location.lat')
+    }
+
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': data});
+  });
+});
+
 gb.api.http.addRoute('/file/create', function(o){
   var _gb = {};
   return Async.waterfall([

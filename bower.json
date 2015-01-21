@@ -22,11 +22,11 @@
   , "jquery-qrcode": "*"
   , "jsbarcode": "*"
   , "magicsuggest": "*"
+  , "async": "*"
   },
   "devDependencies": {
     "assert": "*",
-    "blanket": "*",
-    "async": "*"
+    "blanket": "*"
   },
   "ignore": [
     "test",

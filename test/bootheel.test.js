@@ -3628,6 +3628,8 @@ suite('schemas', function(){
     , 'array': 'array'
     };
 
+    this.timeout(4000000);
+
     gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'autoconform': true};
 
     gb.el = _$.mutableControl(gb.vw);
@@ -3717,6 +3719,8 @@ suite('schemas', function(){
     };
 
     gb.vw = {'name': Belt.uuid(), 'value': gb.obj, 'schema': gb.schema, 'autoconform': true};
+
+    this.timeout(4000000);
 
     gb.el = _$.mutableControl(gb.vw);
     gb.el.render();
