@@ -69,14 +69,34 @@
     var gb = {};
 
 
-    gb.view = _$.fileControl({
-      'name': 'file'
-    , 'value': {'path': '/test/assets/data/2.mp4'}
+    gb.pdf = _$.mediaView({
+      'name': 'pdf'
+    , 'value': '/test/assets/data/66c816bc1857976114a5269c900da713.pdf'
     });
-    gb.view.render();
+    gb.pdf.render();
 
+    gb.img = _$.mediaView({
+      'name': 'img'
+    , 'value': '/test/assets/data/753ca7f3cbbff6253f6febb030a8b2fe.jpg'
+    });
+    gb.img.render();
 
-    $('form').append(gb.view.$el);
+    gb.vid = _$.mediaView({
+      'name': 'video'
+    , 'value': '/test/assets/data/2.mp4'
+    });
+    gb.vid.render();
+
+    gb.aud = _$.mediaView({
+      'name': 'audio'
+    , 'value': '/test/assets/data/1.mp3'
+    });
+    gb.aud.render();
+
+    $('form').append(gb.pdf.$el);
+    $('form').append(gb.img.$el);
+    $('form').append(gb.vid.$el);
+    $('form').append(gb.aud.$el);
 
   </script>
 </body>

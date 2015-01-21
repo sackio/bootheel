@@ -122,7 +122,7 @@ gb.api.http.addRoute('/location/reverse_geocode', function(o){
   });
 });
 
-gb.api.http.addRoute('/file/create', function(o){
+/*gb.api.http.addRoute('/file/create', function(o){
   var _gb = {};
   return Async.waterfall([
     function(cb){
@@ -141,6 +141,31 @@ gb.api.http.addRoute('/file/create', function(o){
   , function(cb){
       Belt.set(_gb, 'data.file.file_path', _gb.file.name);
       return FSTK.stat(Path.join(gb.api.settings.http.paths.data, '/', _gb.file.name), Belt.dcds(cb, _gb, 'data.file.stat', 1, '', 0)); 
+    }
+  ], function(err){
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': _gb.data});
+  });
+}, {'method': 'post'});*/
+
+gb.api.http.addRoute('/file/create', function(o){
+  var _gb = {};
+  return Async.waterfall([
+    function(cb){
+      _gb.data = Belt.parse(Belt.get(o, '$data.data') || '{}');
+      _gb.file = Belt.get(o, '$files.upload');
+
+      if (!_gb.file) return cb(new Error('File was not uploaded'));
+
+      if (_gb.data.path) return FSTK.rm(Path.join(gb.api.settings.http.paths.data, '/', _gb.data.path), Belt.cw(cb));
+
+      return cb();
+    }
+  , function(cb){
+      return FSTK.mv(_gb.file.path, Path.join(gb.api.settings.http.paths.data, '/', _gb.file.name), Belt.cw(cb, 0));
+    }
+  , function(cb){
+      Belt.set(_gb, 'data.path', _gb.file.name);
+      return cb();
     }
   ], function(err){
     return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': _gb.data});
