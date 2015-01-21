@@ -69,9 +69,14 @@
     var gb = {};
 
 
-    gb.view = _$.fileControl({
-      'name': 'file'
-    , 'value': {}
+    gb.view = _$.fileArray({
+      'name': 'Upload Multiple Files'
+    , 'value': {'files': [
+      /*  {'path': '/test/assets/data/66c816bc1857976114a5269c900da713.pdf'}
+      , {'path': '/test/assets/data/753ca7f3cbbff6253f6febb030a8b2fe.jpg'}
+      , {'path': '/test/assets/data/2.mp4'}
+      , {'path': '/test/assets/data/1.mp3'}*/
+      ]}
     });
     gb.view.render();
 
