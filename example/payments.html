@@ -85,7 +85,104 @@
       });
     };
 
-    gb.view = _$.objectControl();
+    gb.view = _$.objectControl({
+      'name': 'Add Credit Card'
+    , 'addable': false
+    , 'removable': false
+    , 'client_token_url': '/payment/token/create'
+    , 'value': {
+        'number': ''
+      , 'cardholderName': ''
+      , 'expirationMonth': '01'
+      , 'expirationYear': '2015'
+      , 'cvv': ''
+      }
+    , 'child': {
+        'removable': false
+      }
+    , 'subschemas': {
+        'expirationMonth': {
+          '$control': 'selectControl'
+        , 'values': ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+        }
+      , 'expirationYear': {
+          '$control': 'selectControl'
+        , 'values': ['2015', '2016', '2017', '2018', '2019', '2020']
+        }
+      }
+    , 'render': {
+        'transformer': function(){
+          var self = this;
+          self.createBraintreeClient(function(err, client){
+            if (err) return self.setStatus(err.message);
+
+            self.$client = client;
+            return self.getButtons().append(
+              _$.button({'class': ['btn', 'btn-info', 'submit']}, 'Submit').render(true)
+            );
+          });
+          return self;
+        }
+      }
+    , 'view': {
+        'createBraintreeClient': function(options, callback){
+          var a = Belt.argulint(arguments)
+            , self = this;
+          a.o = _.defaults(a.o, {
+            'customer': self.$customer
+          });
+          return $.post(self.settings.client_token_url, a.o, function(data){
+            var tk = Belt.get(data, 'data.token');
+
+            if (!tk || data.error) return a.cb(new Error(data.error || 'Client token not received'));
+
+            return a.cb(null, new braintree.api.Client({'clientToken': tk}));
+          });
+        }
+      , 'submitCard': function(options, callback){
+          var a = Belt.argulint(arguments)
+            , self = this
+            , card = self.get()
+            , errors = []
+            , _gb = {};
+
+          a.o = _.defaults(a.o, {
+            'customer': self.$customer
+          });
+
+          if (!card.number) errors.push('Number is required');
+          if (!card.cardholderName) errors.push('Cardholder name is required');
+          if (!card.expirationMonth) errors.push('Expiration month is required');
+          if (!card.expirationYear) errors.push('Expiration year is required');
+          if (!card.cvv) errors.push('CVV is required');
+
+          if (_.any(errors)) return self.setStatus(errors);
+
+          self.setStatus();
+
+          return async.waterfall([
+            function(cb){
+
+            }
+          , function(cb){
+
+            }
+          ], function(err){
+
+          }
+        }
+      }
+    , 'events': {
+        'click button.submit': function(e){
+          e.preventDefault();
+          return this.submitCard();
+        }
+      }
+    });
+    gb.view.render();
+
+
+    $('form').append(gb.view.$el);
 
   </script>
 </body>

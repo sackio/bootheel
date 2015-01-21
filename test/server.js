@@ -177,6 +177,17 @@ gb.api.http.addRoute('/payment/token/create', function(o){
   if (o.$data.customer) tk['customerId'] = o.$data.customer;
 
   return gb.braintree.clientToken.generate(tk, function(err, res){
+
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': {'token': Belt.get(res, 'clientToken')}});
+  });
+}, {'method': 'post'});
+
+gb.api.http.addRoute('/payment/account/create', function(o){
+  var tk = {};
+  if (o.$data.customer) tk['customerId'] = o.$data.customer;
+
+  return gb.braintree.clientToken.generate(tk, function(err, res){
+
     return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': {'token': Belt.get(res, 'clientToken')}});
   });
 }, {'method': 'post'});

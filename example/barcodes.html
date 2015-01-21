@@ -78,11 +78,38 @@
   <script>
     gb = {};
 
-    gb.view = _$.barcodeControl({'name': 'test', 'value': 'donkey'});
+    gb.view = _$.textControl({'name': 'Input a value', 'removable': false});
 
-    $('#fixture form').append(gb.view.$el);
+    gb.generate = function(){
+      var val = gb.view.get();
 
+      _.each(gb.views, function(v){ return v.set(val); });
+
+      return;
+    };
+
+    gb.view.on('change', function(){
+      return gb.generate();
+    });
+
+    $('#fixture form').append(gb.view.$el, '<hr>');
     gb.view.render();
+
+    gb.views = 
+    [
+      _$.barcodeControl({'name': 'QR', 'removable': false, 'format': 'qr'})
+    , _$.barcodeControl({'name': 'CODE128', 'removable': false, 'format': 'CODE128'})
+    , _$.barcodeControl({'name': 'EAN', 'removable': false, 'format': 'EAN'})
+    , _$.barcodeControl({'name': 'UPC', 'removable': false, 'format': 'UPC'})
+    , _$.barcodeControl({'name': 'CODE39', 'removable': false, 'format': 'CODE39'})
+    , _$.barcodeControl({'name': 'ITF', 'removable': false, 'format': 'ITF'})
+    , _$.barcodeControl({'name': 'ITF14', 'removable': false, 'format': 'ITF14'})
+    , _$.barcodeControl({'name': 'pharmacode', 'removable': false, 'format': 'pharmacode'})
+    ];
+
+    $('#fixture form').append(_.pluck(gb.views, '$el'));
+
+    _.each(gb.views, function(v){ return v.render(); });
 
   </script>
 </body>
