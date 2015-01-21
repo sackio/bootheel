@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Object View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/fontawesome/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+  <link rel="stylesheet" href="../bower_components/summernote/dist/summernote.css" />
+  <link rel="stylesheet" href="../bower_components/summernote/dist/summernote-bs3.css" />
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+  <script src="../bower_components/summernote/dist/summernote.min.js"></script>
+  <script src="../bower_components/ace/build/src/ace.js"></script>
+  <script src="../bower_components/ace/build/src/theme-eclipse.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/ace/build/src/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
+
+  <style>
+    form {
+      padding: 40px;
+    }
+
+    .row.header {
+      margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+
+    textarea {
+      resize: none;
+    }
+    
+    * {
+      white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      white-space: -pre-wrap;      /* Opera 4-6 */
+      white-space: -o-pre-wrap;    /* Opera 7 */
+      white-space: pre-wrap;       /* css-3 */
+      word-wrap: break-word;       /* Internet Explorer 5.5+ */
+      white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+      word-break: break-all;
+      white-space: normal;
+    }
+
+    [data-control="ace"] .editor {
+        position: relative;
+        width: 100%;
+        height: 400px;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+    <form class="form-horizontal">
+
+    </form>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+    var gb = {};
+
+    gb.html = '<div id=\"mw-content-text\" lang=\"en\" dir=\"ltr\" class=\"mw-content-ltr\"><div class=\"hatnote\">This article is about the plant genus.  For use as a psychoactive drug, see <a href=\"/wiki/Cannabis_(drug)\" title=\"Cannabis (drug)\">Cannabis (drug)</a>.  For other uses, see <a href=\"/wiki/Cannabis_(disambiguation)\" title=\"Cannabis (disambiguation)\" class=\"mw-disambig\">Cannabis (disambiguation)</a>.</div><div class=\"metadata topicon nopopups\" id=\"protected-icon\" style=\"display:none;right:55px\"><a href=\"/wiki/Wikipedia:Protection_policy#semi\" title=\"This article is semi-protected.\"><img alt=\"Page semi-protected\" src=\"//upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Padlock-silver.svg/20px-Padlock-silver.svg.png\" width=\"20\" height=\"20\" srcset=\"//upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Padlock-silver.svg/30px-Padlock-silver.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Padlock-silver.svg/40px-Padlock-silver.svg.png 2x\" data-file-width=\"128\" data-file-height=\"128\"></a></div><div><table class=\"infobox biota\" style=\"text-align: left; width: 200px; font-size: 100%\"><tbody><tr><th colspan=\"2\" style=\"text-align: center; background-color: rgb(144,238,144)\"><i>Cannabis</i></th></tr><tr><td colspan=\"2\" style=\"text-align: center\"><a href=\"/wiki/File:Cannabis_sativa_Koehler_drawing.jpg\" class=\"image\"><img alt=\"Cannabis sativa Koehler drawing.jpg\" src=\"//upload.wikimedia.org/wikipedia/commons/thumb/7/79/Cannabis_sativa_Koehler_drawing.jpg/220px-Cannabis_sativa_Koehler_drawing.jpg\" width=\"220\" height=\"264\" srcset=\"//upload.wikimedia.org/wikipedia/commons/thumb/7/79/Cannabis_sativa_Koehler_drawing.jpg/330px-Cannabis_sativa_Koehler_drawing.jpg 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/7/79/Cannabis_sativa_Koehler_drawing.jpg/440px-Cannabis_sativa_Koehler_drawing.jpg 2x\" data-file-width=\"1816\" data-file-height=\"2177\"></a></td></tr><tr><td colspan=\"2\" style=\"text-align: center; font-size: 88%\">Common hemp</td></tr><tr style=\"text-align: center; background-color: rgb(144,238,144)<div class=\"thumbinner\" style=\"width:172px;\"><a href=\"/wiki/File:Cannabis_Sativa_Querschnitt.JPG\" class=\"image\"><img alt=\"\" src=\"//upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Cannabis_Sativa_Querschnitt.JPG/170px-Cannabis_Sativa_Querschnitt.JPG\" width=\"170\" height=\"227\" class=\"thumbimage\" srcset=\"//upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Cannabis_Sativa_Querschnitt.JPG/255px-Cannabis_Sativa_Querschnitt.JPG 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Cannabis_Sativa_Querschnitt.JPG/340px-Cannabis_Sativa_Querschnitt.JPG 2x\" data-file-width=\"2736\" data-file-height=\"3648\"></a><div class=\"thumbcaption\"><div class=\"magnify\"><a href=\"/wiki/File:Cannabis_Sativa_Querschnitt.JPG\" class=\"internal\" title=\"Enlarge\"></a></div><i>Cannabis sativa</i> stem longitudinal section</div></div></div><p>The term <i>Hemp</i> is used to name the durable soft fiber from the Cannabis <a href=\"/wiki/Plant_stem\" title=\"Plant stem\">Plant stem</a> (stalk). <i>Cannabis sativa</i> cultivars are used for fibers due to their long stems; Sativa varieties may grow more than six metres tall. However, <i>hemp</i> can refer to any industrial or foodstuff product that is not intended for use as a drug. Many countries regulate limits for psychoactive compound (<a href=\"/wiki/THC\" title=\"THC\" class=\"mw-redirect\">THC</a>) concentrations in products labeled as hemp.</p><p>Hemp is valuable in tens of thousands of commercial products, especially as fibre<sup id=\"cite_ref-naihc.org_90-0\" class=\"reference\"><a href=\"#cite_note-naihc.org-90\"><span>[</span>90<span>]</span></a></sup> ranging from <a href=\"/wiki/Paper\" title=\"Paper\">paper</a>, <a href=\"/wiki/Rope\" title=\"Rope\">cordage</a>, <a href=\"/wiki/Hemp#Composite_materials\" title=\"Hemp\">construction material</a> and textiles in general, to <a href=\"/wiki/Clothing\" title=\"Clothing\">clothing</a>. Hemp is stronger and longer-lasting than <a href=\"/wiki/Cotton\" title=\"Cotton\">cotton</a>. It also is a useful source of foodstuffs (hemp milk, hemp seed, hemp oil) and <a href=\"/wiki/Biofuels\" title=\"Biofuels\" class=\"mw-redirect\">biofuels</a>. Hemp has been used by many civilizations, from <a href=\"/wiki/China\" title=\"China\">China</a> to <a href=\"/wiki/Europe\" title=\"Europe\">Europe</a> (and later <a href=\"/wiki/North_America\" title=\"North America\">North America</a>) during the last 12,000 years.<sup id=\"cite_ref-naihc.org_90-1\" class=\"reference\"><a href=\"#cite_note-naihc.org-90\"><span>[</span>90<span>]</span></a></sup><sup id=\"cite_ref-91\" class=\"reference\"><a href=\"#cite_note-91\"><span>[</span>91<span>]</span></a></sup> In modern times novel applications and improvements have been explored with modest commercial success.<sup id=\"cite_ref-Gertjan_92-0\" class=\"reference\"><a href=\"#cite_note-Gertjan-92\"><span>[</span>92<span>]</span></a></sup><sup id=\"cite_ref-Alberta_93-0\" class=\"reference\"><a href=\"#cite_note-Alberta-93\"><span>[</span>93<span>]</span></a></sup></p><h3><span class=\"mw-headline\" id=\"Psychoactive_drug\">Psychoactive drug</span></h3><div class=\"hatnote relarticle mainarticle\">Main article: <a href=\"/wiki/Cannabis_(drug)\" title=\"Cannabis (drug)\">Cannabis (drug)</a></div>';
+
+    gb.view = _$.objectControl({
+      'name': 'Wiki Article'
+    , 'value': {
+        'title': 'Cannabis'
+      , 'content': gb.html
+      , 'attachments': {'files': []}
+      }
+    , 'addable': false
+    , 'child': {
+        'removable': false
+      }
+    , 'subschemas': {
+        'content': {
+          '$control': 'wysiwygControl'
+        }
+      , 'attachments': {
+          '$control': 'fileArray'
+        , 'removable': false
+        }
+      }
+    });
+    gb.view.render();
+
+
+    $('form').append(gb.view.$el);
+
+  </script>
+</body>
+</html>
