@@ -8,6 +8,7 @@ config.json
 data
 test/assets/uploads
 test/assets/data
+test/assets/resources
 test/data
 bower_components
 *.log

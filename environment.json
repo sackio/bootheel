@@ -11,7 +11,7 @@
       }
     , "http": {
         "session_key": "dev.bootheel.sid"
-      , "port": 8081
+      , "port": 8000
       , "express_settings": {
           "view engine": "ejs"
         , "trust proxy": true

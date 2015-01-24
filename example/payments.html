@@ -71,21 +71,6 @@
   <script>
     gb = {};
 
-    gb.createBraintreeClient = function(options, callback){
-      var a = Belt.argulint(arguments)
-        , self = this;
-      a.o = _.defaults(a.o, {
-
-      });
-      return $.post('/payment/token/create', function(data){
-        var tk = Belt.get(data, 'data.token');
-
-        if (!tk || data.error) return a.cb(new Error(data.error || 'Client token not received'));
-
-        return a.cb(null, new braintree.api.Client({'clientToken': tk}));
-      });
-    };
-
     gb.view = _$.objectControl({
       'name': 'Add Credit Card'
     , 'addable': false
@@ -188,7 +173,11 @@
             if (err) return self.setStatus(err.message);
 
             self.setStatus();
-            return gb.view.$el.after('<hr><div class="thumbnail"><div class="caption"><p><img src="' + data.creditCards[0].imageUrl + '" style="margin-right:10px;"> ' + data.creditCards[0].maskedNumber + '<p></div></div>');
+
+            var ccard = _$.textControl({'label': '<img src="' + data.creditCards[0].imageUrl + '">', 'value': data.creditCards[0].maskedNumber, 'readonly': true, 'removable': true});
+            ccard.render();
+
+            return gb.view.$el.after('<hr>', ccard.$el);
           });
         }
       }
