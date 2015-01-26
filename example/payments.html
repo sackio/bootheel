@@ -71,7 +71,20 @@
   <script>
     gb = {};
 
-    gb.view = _$.objectControl({
+    gb.account = _$.paymentAccountControl({
+      'name': 'Payment Account'
+    , 'addable': false
+    , 'removable': false
+    , 'child': {
+        'removable': false
+      , 'addable': false
+      , 'readonly': true
+      }
+    });
+
+    //gb.creditCard = _$.creditCardControl();
+
+    /*gb.creditCard = _$.objectControl({
       'name': 'Add Credit Card'
     , 'addable': false
     , 'removable': false
@@ -123,7 +136,11 @@
 
             if (!tk || data.error) return a.cb(new Error(data.error || 'Client token not received'));
 
-            return a.cb(null, new braintree.api.Client({'clientToken': tk}));
+            self.$token = tk;
+
+            return a.cb(null, new braintree.api.Client({
+              'clientToken': tk
+            }));
           });
         }
       , 'submitCard': function(options, callback){
@@ -174,18 +191,93 @@
 
             self.setStatus();
 
-            var ccard = _$.textControl({'label': '<img src="' + data.creditCards[0].imageUrl + '">', 'value': data.creditCards[0].maskedNumber, 'readonly': true, 'removable': true});
+            /*var ccard = _$.textControl({'label': '<img src="' + data.creditCards[0].imageUrl + '">'
+            , 'value': data.creditCards[0].maskedNumber, 'readonly': true, 'removable': true});
             ccard.render();
 
-            return gb.view.$el.after('<hr>', ccard.$el);
+            return self.$el.after('<hr>', ccard.$el);*/
+/*            return gb.account.set(data);
+          });
+        }
+      }
+    });*/
+
+    gb.paypal = _$.view({
+      'tag': 'div'
+    , 'layout': ['control']
+    , 'views': {
+        'control': _$.div({'class': 'col-xs-12'}).div({'class': 'row'}, [
+          _$.div({'class': 'col-xs-2'}).legend({'class': 'text-primary'}, 'Add PayPal')
+        , _$.div({'class': 'col-xs-10'}).div({'class': 'paypal'})
+        ])
+      }
+    , 'class': ['row', 'header']
+    , 'client_token_url': '/payment/token/create'
+    , 'create_account_url': '/payment/account/create'
+    , 'render': {
+        'transformer': function(){
+          return this.createBraintreeClient();
+        }
+      }
+    , 'view': {
+        'createBraintreeClient': function(options, callback){
+          var a = Belt.argulint(arguments)
+            , self = this;
+          a.o = _.defaults(a.o, {
+            'customer': self.$customer
+          });
+          return $.post(self.settings.client_token_url, a.o, function(data){
+            var tk = Belt.get(data, 'data.token');
+
+            if (!tk || data.error) return a.cb(new Error(data.error || 'Client token not received'));
+
+            self.$token = tk;
+
+            braintree.setup(tk, 'paypal', Belt.extend({
+              'container': self.$('.paypal')
+            , 'onSuccess': function(nonce, email, addr){
+                return self.submitPaypal({
+                  'paymentMethodNonce': nonce
+                });
+              }
+            }, self.settings.paypal || {}));
+            return a.cb()
+          });
+        }
+      , 'submitPaypal': function(options, callback){
+          var a = Belt.argulint(arguments)
+            , self = this
+            , card = self.get()
+            , errors = []
+            , _gb = {};
+
+          a.o = _.defaults(a.o, {
+            'customer': self.$customer
+          });
+
+          //self.setStatus();
+
+          return async.waterfall([
+            function(cb){
+              return $.post(self.settings.create_account_url, Belt.extend({}, _gb, a.o), Belt.cs(cb, _gb, 'res', 0));
+            }
+          ], function(err){
+            if (!err && _gb.res.error) err = new Error(_gb.res.error);
+
+            return gb.account.set(_gb.res.data);
           });
         }
       }
     });
-    gb.view.render();
 
+    gb.account.render();
+    $('form').append(gb.account.$el);
 
-    $('form').append(gb.view.$el);
+    //gb.creditCard.render();
+    //$('form').append(gb.creditCard.$el);
+
+    //gb.paypal.render();
+    //$('form').append(gb.paypal.$el);
 
   </script>
 </body>

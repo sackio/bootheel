@@ -174,17 +174,41 @@ gb.api.http.addRoute('/file/create', function(o){
 
 gb.api.http.addRoute('/payment/token/create', function(o){
   var tk = {};
-  if (o.$data.customer) tk['customerId'] = o.$data.customer;
+  if (o.$data.customer) tk['customerId'] = o.$data.customerId;
 
   return gb.braintree.clientToken.generate(tk, function(err, res){
-
-    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': {'token': Belt.get(res, 'clientToken')}});
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': {'clientToken': Belt.get(res, 'clientToken')}});
   });
 }, {'method': 'post'});
 
-gb.api.http.addRoute('/payment/account/create', function(o){
-  return gb.paid.create_customer(o.$data, function(err, res){
-    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': res});
+gb.api.http.addRoute('/payment/method/create', function(o){
+  var _gb = {};
+  _gb.id = o.$data.customerId || o.$data.id;
+
+  return Async.waterfall([
+    function(cb){
+      if (!_gb.id) return gb.paid.create_customer({
+        'paymentMethodNonce': o.$data.paymentMethodNonce
+      }, Belt.cs(cb, _gb, 'cust', 1, 0));
+
+      return gb.paid.create_payment_method({
+        'customerId': _gb.id
+      , 'paymentMethodNonce': o.$data.paymentMethodNonce
+      }, Belt.cw(cb, 0));
+    }
+  , function(cb){
+      if (_gb.cust) return cb();
+
+      return gb.paid.get_customer(_gb.id, Belt.cs(cb, _gb, 'cust', 1, 0));
+    }
+  , function(cb){
+      _gb.cust = _gb.cust || {};
+      return gb.braintree.clientToken.generate({'customerId': _gb.cust.id}
+      , Belt.dcds(cb, _gb, 'cust.clientToken', 1, 'clientToken', 0));
+    }
+  ], function(err){
+    if (!err) _gb.cust = _.pick(_gb.cust, ['id', 'clientToken', 'creditCards', 'paypalAccounts']);
+    return o.$response.status(200).json({'error': Belt.get(err, 'message'), 'data': _gb.cust});
   });
 }, {'method': 'post'});
 
