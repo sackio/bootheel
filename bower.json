@@ -1,8 +1,7 @@
 {
   "name": "bootheel",
   "description": "Out of the box scaffolding, schemas, forms, and views for RESTful APIs using Bootstrap",
-  "version": "0.0.1",
-  "homepage": "",
+  "version": "0.1.0",
   "license": "MIT",
   "copyright": "Ben Sack",
   "main": "dist/bootheel.js",
@@ -29,11 +28,6 @@
     "blanket": "*"
   },
   "ignore": [
-    "test",
-    "example",
-    "lib",
-    "Gruntfile.js",
-    "package.json",
-    "grunt"
+
   ]
 }
