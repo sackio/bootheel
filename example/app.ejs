@@ -1,0 +1,959 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>bootheel | Model View</title>
+  <link rel="stylesheet" href="../node_modules/fatjs/node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" />
+  <link rel="stylesheet" href="../bower_components/bootstrap-fileinput/css/fileinput.min.css" />
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../bower_components/jsbelt/lib/belt.js"></script>
+  <script src="../bower_components/async/lib/async.js"></script>
+  <script src="../bower_components/moment/min/moment.min.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="../bower_components/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+  <script src="../bower_components/bootstrap-fileinput/js/fileinput.min.js"></script>
+  <script src="../bower_components/bootbox/bootbox.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+  <script src="../bower_components/summernote/dist/summernote.min.js"></script>
+  <script src="../bower_components/ace/build/src/ace.js"></script>
+  <script src="../bower_components/ace/build/src/theme-eclipse.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../bower_components/ace/build/src/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
+
+  <style>
+    [data-control="code"] .editor {
+        position: relative;
+        width: 100%;
+        height: 400px;
+    }
+
+    * {
+      white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      white-space: -pre-wrap;      /* Opera 4-6 */
+      white-space: -o-pre-wrap;    /* Opera 7 */
+      white-space: pre-wrap;       /* css-3 */
+      word-wrap: break-word;       /* Internet Explorer 5.5+ */
+      white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+      word-break: break-all;
+      white-space: normal;
+    }
+
+
+    /*
+     * Base structure
+     */
+    
+    legend {
+      border: none;
+    }
+    
+    textarea {
+      resize: none;
+    }
+    
+    .row.headline {
+      //border-bottom: 2px #ccc solid;
+      //margin-bottom: 30px;
+    }
+    
+    
+    .row.header {
+      //margin-top: 30px;
+      //padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    
+    /* Move down content because we have a fixed navbar that is 50px tall */
+    body {
+      padding-top: 50px;
+    }
+    
+    /*
+     * Global add-ons
+     */
+    
+    .sub-header {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .page-header {
+      border: none;
+    }
+    
+    /*
+     * Top navigation
+     * Hide default border to remove 1px line.
+     */
+    .navbar-fixed-top {
+      border: 0;
+    }
+    
+    /*
+     * Sidebar
+     */
+    
+    /* Hide for mobile, show later */
+    .sidebar {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .sidebar {
+        position: fixed;
+        top: 51px;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: block;
+        padding: 20px;
+        overflow-x: hidden;
+        overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        background-color: #f5f5f5;
+        border-right: 1px solid #eee;
+      }
+    }
+    
+    /* Sidebar navigation */
+    .nav-sidebar {
+      margin-right: -21px; /* 20px padding + 1px border */
+      margin-bottom: 20px;
+      margin-left: -20px;
+    }
+    .nav-sidebar > li > a {
+      padding-right: 20px;
+      padding-left: 20px;
+    }
+    .nav-sidebar > .active > a,
+    .nav-sidebar > .active > a:hover,
+    .nav-sidebar > .active > a:focus {
+      color: #fff;
+      background-color: #428bca;
+    }
+    
+    
+    /*
+     * Main content
+     */
+    
+    .main {
+      padding: 20px;
+    }
+    @media (min-width: 768px) {
+      .main {
+        padding-right: 40px;
+        padding-left: 40px;
+      }
+    }
+    .main .page-header {
+      margin-top: 0;
+    }
+    
+    
+    /*
+     * Placeholder dashboard ideas
+     */
+    
+    .placeholders {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .placeholders h4 {
+      margin-bottom: 0;
+    }
+    .placeholder {
+      margin-bottom: 20px;
+    }
+    .placeholder img {
+      display: inline-block;
+      border-radius: 50%;
+    }
+    
+    form {
+      //padding: 40px;
+    }
+
+    .row.header {
+      //margin-top: 30px;
+      padding-top: 20px;
+      margin-bottom: 15px;
+      border-top: 2px #ccc solid;
+    }
+    legend {
+      border: none;
+    }
+
+    label {
+      //font-size: 12px;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="fixture">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Example App</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+
+          <h4 style="text-transform:uppercase;font-weight:bold;">Models</h4>
+          <ul class="nav nav-sidebar">
+            <li><a href="#/model_space/create">Create</a></li>
+            <li><a href="#/model_space/read">Read</a></li>
+            <li><a href="#/model_space/delete">Delete</a></li>
+          </ul>
+
+          <hr>
+
+          <h4 style="text-transform:uppercase;font-weight:bold;">Studies</h4>
+          <ul class="nav nav-sidebar">
+            <li><a href="#/study/create">Create</a></li>
+            <li><a href="#/study/read">Read</a></li>
+            <li><a href="#/study/delete">Delete</a></li>
+          </ul>
+
+          <hr>
+
+          <h4 style="text-transform:uppercase;font-weight:bold;">Hivemind</h4>
+          <ul class="nav nav-sidebar">
+            <li><a href="#/hivemind/cluster">Cluster</a></li>
+            <li><a href="#/hivemind/job">Job</a></li>
+            <li><a href="#/hivemind/eval">Eval</a></li>
+          </ul>
+
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <div class="row headline">
+            <div class="col-sm-6">
+              <h1 class="page-header"></h1>
+            </div>
+            <div id="buttons" class="col-sm-6">
+            </div>
+          </div>
+
+          <div id="main" class="row">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../lib/bootheel.js" data-cover></script>
+  <script>
+
+var APP = {}
+  , S3 = {
+      'AWSAccessKeyId': '<%= aws.s3_uploads.accessKeyId %>'
+    , 'bucket': '<%= aws.s3_uploads.bucket %>'
+    , 'policy': '<%= aws.s3_uploads.policy %>'
+    , 'signature': '<%= aws.s3_uploads.signature %>'
+    };
+
+APP.$views = {
+  'model_space/create': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Create Model');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-primary', 'pull-right', 'model_space-create'], 'type': 'submit'}, 'Submit')
+        .render(true)
+    );
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'})
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/model_space/create"]').parents('li').addClass('active');
+
+    APP.doc = APP.$models.model_space();
+
+    //local server upload
+    /*$('button.model_space-create').on('click', function(e){
+      e.preventDefault();
+      var errs = APP.doc.validate();
+      if (_.any(errs)) return;
+
+      var doc = APP.doc.getFormData();
+
+      return $.ajax({
+        'url': '/model_space/create',
+        'type': 'POST',
+        'data': doc,
+        'cache': false,
+        'dataType': 'json',
+        'processData': false,
+        'contentType': false
+      , 'success': function(data){
+          console.log(data);
+        }
+      });
+    });*/
+
+    //s3 upload
+    $('button.model_space-create').on('click', function(e){
+      e.preventDefault();
+      var errs = APP.doc.validate();
+      if (_.any(errs)) return;
+
+      var idf = APP.doc.get('seed_model').item(0)
+        , data = Belt.extend(
+                   {}
+                 , _.pick(S3, ['AWSAccessKeyId', 'acl', 'success_action_redirect', 'policy', 'signature'])
+                 , {
+                     'key': 'uploads/' + [Belt.uuid(), idf.name].join('-')
+                   , 'Content-Type': idf.type
+                   }
+                 );
+
+      data.file = APP.doc.get('seed_model');
+
+      return $.ajax({
+        'url': 'https://' + S3.bucket + '.s3.amazonaws.com/',
+        'type': 'POST',
+        'data': _$.formData(data)
+      , 'cache': false
+      , 'dataType': 'json'
+      , 'processData': false
+      , 'contentType': false
+      , 'success': function(data){
+          console.log(data);
+        }
+      , 'error': function(){
+          console.log(arguments);
+        }
+      });
+    });
+
+    return;
+  }
+, 'model_space/read': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Read Model');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-primary', 'pull-right']}, 'Find')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.objectControl({
+      'addable': false
+    , 'removable': false
+    , 'value': {
+        'field': 'uuid'
+      , 'query': ''
+      }
+    , 'subschemas': {
+        'field': {
+          'removable': false
+        , '$control': 'radioControl'
+        , 'values': ['uuid', 'label']
+        , 'name': ''
+        }
+      , 'query': {
+          'removable': false
+        }
+      }
+    });
+
+    APP.doc.render();
+    Belt.call(APP, 'doc.views.objectHeaderView.$el.css', {'display': 'none'});
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/model_space/read"]').parents('li').addClass('active');
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'}, APP.doc.$el)
+        .render(true)
+    );
+    return;
+  }
+, 'model_space/delete': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Delete Model');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-danger', 'pull-right']}, 'Delete')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.objectControl({
+      'addable': false
+    , 'removable': false
+    , 'value': {
+        'field': 'uuid'
+      , 'query': ''
+      }
+    , 'subschemas': {
+        'field': {
+          'removable': false
+        , '$control': 'radioControl'
+        , 'values': ['uuid', 'label']
+        , 'name': ''
+        }
+      , 'query': {
+          'removable': false
+        }
+      }
+    });
+
+    APP.doc.render();
+    Belt.call(APP, 'doc.views.objectHeaderView.$el.css', {'display': 'none'});
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/model_space/delete"]').parents('li').addClass('active');
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'}, APP.doc.$el)
+        .render(true)
+    );
+    return;
+  }
+, 'study/create': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Create Study');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-primary', 'pull-right']}, 'Submit')
+        .render(true)
+    );
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'})
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/study/create"]').parents('li').addClass('active');
+
+    APP.doc = APP.$models.study();
+    return;
+  }
+, 'study/read': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Read Study');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-primary', 'pull-right']}, 'Find')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.objectControl({
+      'addable': false
+    , 'removable': false
+    , 'value': {
+        'field': 'uuid'
+      , 'query': ''
+      }
+    , 'subschemas': {
+        'field': {
+          'removable': false
+        , '$control': 'radioControl'
+        , 'values': ['uuid', 'label']
+        , 'name': ''
+        }
+      , 'query': {
+          'removable': false
+        }
+      }
+    });
+
+    APP.doc.render();
+    Belt.call(APP, 'doc.views.objectHeaderView.$el.css', {'display': 'none'});
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/study/read"]').parents('li').addClass('active');
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'}, APP.doc.$el)
+        .render(true)
+    );
+    return;
+  }
+, 'study/delete': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Delete Study');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-danger', 'pull-right']}, 'Delete')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.objectControl({
+      'addable': false
+    , 'removable': false
+    , 'value': {
+        'field': 'uuid'
+      , 'query': ''
+      }
+    , 'subschemas': {
+        'field': {
+          'removable': false
+        , '$control': 'radioControl'
+        , 'values': ['uuid', 'label']
+        , 'name': ''
+        }
+      , 'query': {
+          'removable': false
+        }
+      }
+    });
+
+    APP.doc.render();
+    Belt.call(APP, 'doc.views.objectHeaderView.$el.css', {'display': 'none'});
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/study/delete"]').parents('li').addClass('active');
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'}, APP.doc.$el)
+        .render(true)
+    );
+    return;
+  }
+, 'hivemind/cluster': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Cluster Settings');
+    $('#buttons').html(
+      _$.div({'class': 'btn-group pull-right'})
+        .button({'class': ['btn', 'btn-primary']}, 'Start Cluster')
+        .button({'class': ['btn', 'btn-danger']}, 'Terminate Cluster')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.numberControl({
+      'name': 'size'
+    , 'removable': false
+    , 'value': 20
+    });
+
+    APP.doc.render();
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/hivemind/cluster"]').parents('li').addClass('active');
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'}, APP.doc.$el)
+        .render(true)
+    );
+    return;
+  }
+, 'hivemind/job': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Run a job');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-primary', 'pull-right']}, 'Run Job')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.objectControl({
+      'addable': false
+    , 'removable': false
+    , 'value': {
+        'job type': 'worker'
+      , 'instance id': ''
+      , 'instance set': 'instances'
+      , 'command type': 'exec'
+      , 'silent': false
+      , 'command': ''
+      , 'code': ''
+      , 'cwd': ''
+      , 'args': []
+      , 'env': {}
+      }
+    , 'child': {
+        'removable': false
+      }
+    , 'subschemas': {
+        'job type': {
+          'removable': false
+        , '$control': 'radioControl'
+        , '$opts': {
+          'values': ['manager', 'worker', 'cluster-wide', 'instance']
+          }
+        }
+      , 'command type': {
+          'removable': false
+        , '$control': 'radioControl'
+        , '$opts': {
+          'values': ['exec', 'ps', 'eval']
+          }
+        }
+      , 'command': {
+          'removable': false
+        }
+      , 'code': {
+          'removable': false
+        , '$control': 'textareaControl'
+        }
+      , 'args': {
+          'removable': false
+        , 'child': {
+            '$control': 'textControl'
+          }
+        }
+      , 'env': {
+          'removable': false
+        , 'child': {
+            '$control': 'textControl'
+          }
+        }
+      }
+    });
+
+    APP.doc.on('change', function(){
+      var j = APP.doc.getPath('job type');
+      if (j === 'instance'){
+        APP.doc.getView('instance id').$el.show();
+      } else {
+        APP.doc.getView('instance id').$el.hide();
+      }
+
+      if (j === 'cluster-wide'){
+        APP.doc.getView('instance set').$el.show();
+      } else {
+        APP.doc.getView('instance set').$el.hide();
+      }
+
+      var j = APP.doc.getPath('command type');
+      if (j === 'eval'){
+        APP.doc.getView('code').$el.show();
+        APP.doc.getView('command').$el.hide();
+        APP.doc.getView('env').$el.hide();
+        APP.doc.getView('cwd').$el.hide();
+      } else {
+        APP.doc.getView('code').$el.hide();
+        APP.doc.getView('command').$el.show();
+        APP.doc.getView('env').$el.show();
+        APP.doc.getView('cwd').$el.show();
+      }
+
+      if (j === 'ps'){
+        APP.doc.getView('args').$el.show();
+      } else {
+        APP.doc.getView('args').$el.hide();
+      }
+    });
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'})
+        .render(true)
+    );
+
+    $('#main form').html(APP.doc.$el);
+
+    APP.doc.render();
+
+    APP.doc.getView('instance id').$el.hide();
+    APP.doc.getView('instance set').$el.hide();
+    APP.doc.getView('code').$el.hide();
+    APP.doc.getView('args').$el.hide();
+
+    Belt.call(APP, 'doc.views.objectHeaderView.$el.css', {'display': 'none'});
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/hivemind/job"]').parents('li').addClass('active');
+
+    return;
+  }
+, 'hivemind/eval': function(opts){
+    var o = opts || {};
+    $('.page-header').html('Run code');
+    $('#buttons').html(
+      _$.button({'class': ['btn', 'btn-primary', 'pull-right']}, 'Run Code')
+        .render(true)
+    );
+
+    Belt.call(APP, 'doc.delete');
+
+    APP.doc = _$.codeControl({
+      'removable': false
+    , 'value': ''
+    });
+
+    $('#main').html(
+      _$.div({'class': 'col-xs-12'})
+        .form({'class': 'form-horizontal'})
+        .render(true)
+    );
+
+    $('#main form').html(APP.doc.$el);
+
+    APP.doc.render();
+    
+    APP.doc.$('.editor').css({'fontSize': '14px'});
+
+    $('.sidebar li').removeClass('active');
+    $('a[href="#/hivemind/eval"]').parents('li').addClass('active');
+
+    return;
+  }
+};
+
+APP._$model = _$.model();
+
+APP.$models = {
+  'model_space': function(opts){
+    var o = opts || {}
+      , model = _$.model();
+
+    var doc = new model({
+      'views': {
+        'view': {'name': '', 'method': 'objectControl', 'container': {'selector': 'form', 'method': 'html'}}
+      }
+    , 'value': {
+        'label': ''
+      , 'time_zone': 'EST'
+      , 'simulation_timestep': 900
+      , 'reporting_timestep': 900
+      , 'measured_data_timestep': 900
+      , 'seed_model': ''
+      , 'weather': ''
+      , 'measured_data': ''
+      , 'metadata': {
+          'latitude': 0
+        , 'longitude': 0
+        , 'elevation': 0
+        }
+      }
+    , 'validations': [
+        {'path': 'label', 'method': 'required', 'message': 'label is required'}
+      , {'path': 'seed_model', 'method': function(){
+          return Belt.get(this.get('seed_model'), 'length') > 0;
+        }, 'message': 'seed_model is required'}
+      , {'path': 'time_zone', 'method': 'required', 'message': 'time_zone is required'}
+      , {'path': 'simulation_timestep', 'method': 'required', 'message': 'simulation_timestep is required'}
+      , {'path': 'reporting_timestep', 'method': 'required', 'message': 'reporting_timestep is required'}
+      , {'path': 'measured_data_timestep', 'method': 'required', 'message': 'measured_data_timestep is required'}
+      , {'path': 'metadata.latitude', 'method': 'required', 'message': 'metadata.latitude is required'}
+      , {'path': 'metadata.longitude', 'method': 'required', 'message': 'metadata.longitude is required'}
+      , {'path': 'metadata.elevation', 'method': 'required', 'message': 'metadata.elevation is required'}
+      ]
+    , 'schema': {
+        'label': 'string'
+      , 'seed_model': 'object'
+      , 'weather': 'object'
+      , 'measured_data': 'object'
+      , 'time_zone': 'string'
+      , 'simulation_timestep': 'number'
+      , 'reporting_timestep': 'number'
+      , 'measured_data_timestep': 'number'
+      , 'metadata': 'object'
+      , 'metadata.latitude': 'number'
+      , 'metadata.longitude': 'number'
+      , 'metadata.elevation': 'number'
+      }
+    , 'viewSchema': {
+        'addable': false
+      , 'removable': false
+      , 'child': {
+          'addable': false
+        , 'removable': false
+        , 'child': {
+            'addable': false
+          , 'removable': false
+          }
+        }
+      , 'subschemas': {
+          'seed_model': {
+            '$control': 'uploadControl'
+          , '$opts': {
+              'plugin': {
+                'showUpload': false
+              }
+            }
+          }
+        , 'weather': {
+            '$control': 'uploadControl'
+          , '$opts': {
+              'multiple': 'multiple'
+            , 'plugin': {
+                'showUpload': false
+              , 'maxFileCount': 15
+              }
+            }
+          }
+        , 'measured_data': {
+            '$control': 'uploadControl'
+          , '$opts': {
+              'showUpload': false
+            }
+          }
+        , 'time_zone': {
+            '$control': 'selectControl'
+          , '$opts': {
+              'values': ['EST', 'CST', 'MT', 'PST']
+            }
+          }
+        }
+      }
+    });
+
+    $('#main form fieldset .header').first().hide();
+
+    return doc;
+  }
+, 'study': function(opts){
+    var o = opts || {}
+      , model = _$.model();
+
+    var doc = new model({
+      'views': {
+        'view': {'name': '', 'method': 'objectControl', 'container': {'selector': 'form', 'method': 'html'}}
+      }
+    , 'value': {
+        'label': ''
+      , 'model_space_uuid': ''
+      , 'algorithm': ''
+      , 'algorithm_arguments': {}
+      , 'input_arguments': {}
+      , 'dynamic_argument_range_vector': {}
+      , 'fitness_weights': []
+      }
+    , 'validations': [
+        {'path': 'label', 'method': 'required', 'message': 'label is required'}
+      , {'path': 'model_space_uuid', 'method': 'required', 'message': 'model_space_uuid is required'}
+      , {'path': 'algorithm', 'method': 'required', 'message': 'algorithm is required'}
+      ]
+    , 'schema': {
+        'label': 'string'
+      , 'model_space_uuid': 'string'
+      , 'algorithm': 'string'
+      , 'input_arguments': 'object'
+      , 'dynamic_argument_range_vector': 'object'
+      , 'fitness_weights': 'array'
+      }
+    , 'viewSchema': {
+        'addable': false
+      , 'removable': false
+      , 'child': {
+          'addable': false
+        , 'removable': false
+        }
+      , 'subschemas': {
+          'input_arguments': {
+            'addable': true
+          }
+        , 'dynamic_argument_range_vector': {
+            'addable': true
+          }
+        , 'fitness_weights': {
+            'addable': true
+          , 'child': {
+              '$control': 'objectControl'
+            }
+          }
+        , 'algorithm': {
+            '$control': 'selectControl'
+          , '$opts': {
+              'values': ['some algorithms']
+            }
+          }
+        }
+      }
+    });
+
+    $('#main form fieldset .header').first().hide();
+
+    return doc;
+  }
+};
+
+APP.$router = Backbone.Router.extend({
+  'routes': {
+    'model_space/create': 'model_space/create'
+  , 'model_space/read': 'model_space/read'
+  , 'model_space/delete': 'model_space/delete'
+  , 'study/create': 'study/create'
+  , 'study/read': 'study/read'
+  , 'study/delete': 'study/delete'
+  , 'hivemind/cluster': 'hivemind/cluster'
+  , 'hivemind/job': 'hivemind/job'
+  , 'hivemind/eval': 'hivemind/eval'
+  , '*path': 'model_space/create'
+  }
+});
+
+APP.router = new APP.$router;
+
+APP.router.on('route:model_space/create', function(){
+  return APP.$views['model_space/create']();
+});
+
+APP.router.on('route:model_space/read', function(){
+  return APP.$views['model_space/read']();
+});
+
+APP.router.on('route:model_space/delete', function(){
+  return APP.$views['model_space/delete']();
+});
+
+APP.router.on('route:study/create', function(){
+  return APP.$views['study/create']();
+});
+
+APP.router.on('route:study/read', function(){
+  return APP.$views['study/read']();
+});
+
+APP.router.on('route:study/delete', function(){
+  return APP.$views['study/delete']();
+});
+
+APP.router.on('route:hivemind/cluster', function(){
+  return APP.$views['hivemind/cluster']();
+});
+
+APP.router.on('route:hivemind/job', function(){
+  return APP.$views['hivemind/job']();
+});
+
+APP.router.on('route:hivemind/eval', function(){
+  return APP.$views['hivemind/eval']();
+});
+
+Backbone.history.start();
+
+  </script>
+</body>
+</html>

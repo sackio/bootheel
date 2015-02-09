@@ -11,6 +11,7 @@ var Belt = require('jsbelt')
   , API = require('ap1')
   , Locup = require('locup')
   , Paid = require('pa1d')
+  , Crypto = require('crypto')
 ;
 
 var gb = {}
@@ -212,7 +213,45 @@ gb.api.http.addRoute('/payment/method/create', function(o){
   });
 }, {'method': 'post'});
 
+gb.api.http.addRoute('/model_space/create', function(o){
+  var data = o.$data;
+  _.each(o.$files, function(v, k){
+    k = k.replace(/\[\]/, '');
+    if (!_.isArray(v)) return data[k] = v.path;
+    return data[k] = _.pluck(v, 'path');
+  });
+
+  return o.$response.status(200).json({'data': data});
+}, {'method': 'post'});
+
+gb.api.http.addRoute('/s3/upload', function(o){
+  var data = o.$data;
+
+  return o.$response.status(200).json({'data': data});
+}, {'method': 'all'});
+
 //end test routes
+
+gb.api.http.addRoute('/example/app.html', function(o){
+  //encoding s3 policy
+  var pol = Buffer(JSON.stringify(gb.api.settings.aws.s3_uploads.policy), 'utf-8').toString('base64')
+    , sig = Crypto.createHmac('sha1', gb.api.settings.aws.s3_uploads.secretAccessKey)
+                  .update(JSON.stringify(gb.api.settings.aws.s3_uploads.policy))
+                  .digest('base64');
+
+  return o.$response.render(Path.join(gb.api.settings.__dirname, '/example/app')
+  , Belt.extend({
+    '_': _
+  , 'Belt': Belt
+  }, gb.api.settings, {
+    'aws': {
+      's3_uploads': {
+        'policy': pol
+      , 'signature': sig
+      }
+    }
+  }));
+});
 
 gb.api.http.addRoute('*', function(o){
   return o.$response.sendFile(Path.join(gb.api.settings.__dirname, '.' + o.$url.pathname));
