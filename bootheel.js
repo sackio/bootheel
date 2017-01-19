@@ -17,10 +17,10 @@ function _bh(){
     $(a.o.el).find('[data-set="' + a.o.path + '"]').each(function(i, el){
       var $el = $(el)
         , method = $el.attr('data-set-method')
-        , transform = $el.attr('data-set-transformer')
+        , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
         , value;
 
-      if (transform && Belt.get(a.o.view, 'transformers.' + transform)){
+      if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform])){
         value = _.bind(a.o.view.transformers[transform], a.o.view)(a.o.value, $el, a.o);
       } else {
         value = a.o.value;
@@ -42,10 +42,10 @@ function _bh(){
 
     var $el = $(a.o.el).find('[data-get="' + a.o.path + '"]')
       , method = $el.attr('data-get-method')
-      , transform = $el.attr('data-get-transformer')
+      , transform = $el.attr('data-set-transformer') || ('get:' + a.o.path)
       , value;
 
-    if (transform && Belt.get(a.o.view, 'transformers.' + transform)){
+    if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform])){
       value = _.bind(a.o.view.transformers[transform], a.o.view)(Belt.get($el, method), $el, a.o);
     } else {
       value = Belt.get($el, method);
@@ -123,9 +123,13 @@ function _bh(){
 
       opts = opts || {};
 
-      if (Belt.isNull(path)) return _.mapObject(self.getters, function(v, k){
+      if (Belt.isNull(path)) return _.extend(view.$el.find('[data-get]').map(function(i, e){
+        var $el = $(e)
+          , path = $el.attr('data-get');
+        return view.get(path, opts);
+      }), _.mapObject(self.getters, function(v, k){
         return view.get(k, opts);
-      });
+      }));
 
       if (_.isArray(path)) return _.object(path, _.map(path, function(k){
         return view.get(k, opts);
