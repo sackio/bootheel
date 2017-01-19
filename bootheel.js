@@ -1,3 +1,5 @@
+Backbone.Events['emit'] = Backbone.Events.trigger;
+
 function _bh(){
   var self = this
     , bh = {};
