@@ -20,7 +20,7 @@ function _bh(){
         , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
         , value;
 
-      if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform])){
+      if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform]){
         value = _.bind(a.o.view.transformers[transform], a.o.view)(a.o.value, $el, a.o);
       } else {
         value = a.o.value;
@@ -45,7 +45,7 @@ function _bh(){
       , transform = $el.attr('data-set-transformer') || ('get:' + a.o.path)
       , value;
 
-    if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform])){
+    if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform]){
       value = _.bind(a.o.view.transformers[transform], a.o.view)(Belt.get($el, method), $el, a.o);
     } else {
       value = Belt.get($el, method);
