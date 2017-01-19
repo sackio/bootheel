@@ -16,7 +16,7 @@ function _bh(){
 
     $(a.o.el).find('[data-set="' + a.o.path + '"]').each(function(i, el){
       var $el = $(el)
-        , method = $el.attr('data-set-method')
+        , method = $el.attr('data-set-method') || ($el.is('input, textarea, select') ? 'val' : 'html')
         , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
         , value;
 
@@ -41,8 +41,8 @@ function _bh(){
     });
 
     var $el = $(a.o.el).find('[data-get="' + a.o.path + '"]')
-      , method = $el.attr('data-get-method')
-      , transform = $el.attr('data-set-transformer') || ('get:' + a.o.path)
+      , method = $el.attr('data-get-method') || ($el.is('input, textarea, select') ? 'val()' : 'html()')
+      , transform = $el.attr('data-get-transformer') || ('get:' + a.o.path)
       , value;
 
     if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform]){
@@ -101,7 +101,7 @@ function _bh(){
         self.data[k] = v;
       });
 
-      vals['this'] = self.data;
+      vals['self'] = self.data;
 
       _.each(vals, function(v, k){
         if (self.setters[k]) self.setters[k](v, opts);
