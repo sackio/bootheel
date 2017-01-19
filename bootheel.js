@@ -16,7 +16,7 @@ function _bh(){
 
     $(a.o.el).find('[data-set="' + a.o.path + '"]').each(function(i, el){
       var $el = $(el)
-        , method = $el.attr('data-set-method') || ($el.is('input, textarea, select') ? 'val' : 'html')
+        , method = $el.attr('data-set-method')
         , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
         , value;
 
@@ -26,7 +26,7 @@ function _bh(){
         value = a.o.value;
       }
 
-      Belt.call($el, method, value);
+      if (method) Belt.call($el, method, value);
     });
   };
 
@@ -41,12 +41,12 @@ function _bh(){
     });
 
     var $el = $(a.o.el).find('[data-get="' + a.o.path + '"]')
-      , method = $el.attr('data-get-method') || ($el.is('input, textarea, select') ? 'val()' : 'html()')
+      , method = $el.attr('data-get-method')
       , transform = $el.attr('data-get-transformer') || ('get:' + a.o.path)
       , value;
 
     if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform]){
-      value = _.bind(a.o.view.transformers[transform], a.o.view)(Belt.get($el, method), $el, a.o);
+      value = _.bind(a.o.view.transformers[transform], a.o.view)(method ? Belt.get($el, method) : null, $el, a.o);
     } else {
       value = Belt.get($el, method);
     }
