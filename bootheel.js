@@ -16,6 +16,21 @@ function _bh(){
       //data
     });
 
+    if ($(a.o.el).is('[data-set="' + a.o.path + '"]')){
+      var $el = $(a.o.el)
+        , method = $el.attr('data-set-method')
+        , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
+        , value;
+
+      if (transform && (Belt.get(a.o.view, 'transformers') || {})[transform]){
+        value = _.bind(a.o.view.transformers[transform], a.o.view)(a.o.value, $el, a.o);
+      } else {
+        value = a.o.value;
+      }
+
+      if (method) Belt.call($el, method, value);
+    }
+
     $(a.o.el).find('[data-set="' + a.o.path + '"]').each(function(i, el){
       var $el = $(el)
         , method = $el.attr('data-set-method')
@@ -42,7 +57,7 @@ function _bh(){
       //data
     });
 
-    var $el = $(a.o.el).find('[data-get="' + a.o.path + '"]')
+    var $el = $(a.o.el).is('[data-get="' + a.o.path + '"]') ? $(a.o.el) : $(a.o.el).find('[data-get="' + a.o.path + '"]')
       , method = $el.attr('data-get-method')
       , transform = $el.attr('data-get-transformer') || ('get:' + a.o.path)
       , value;
@@ -125,13 +140,25 @@ function _bh(){
 
       opts = opts || {};
 
-      if (Belt.isNull(path)) return _.extend(view.$el.find('[data-get]').map(function(i, e){
-        var $el = $(e)
-          , path = $el.attr('data-get');
-        return view.get(path, opts);
-      }), _.mapObject(self.getters, function(v, k){
-        return view.get(k, opts);
-      }));
+      if (Belt.isNull(path)){
+        var obj = {};
+        if (view.$el.is('[data-get]')){
+          var path = view.$el.attr('data-get');
+          Belt.set(obj, path, view.get(path, opts));
+        }
+
+        view.$el.find('[data-get]').each(function(i, e){
+          var $el = $(e)
+            , path = $el.attr('data-get');
+          Belt.set(obj, path, view.get(path, opts));
+        });
+
+        _.each(self.getters, function(v, k){
+          Belt.set(obj, k, view.get(k, opts));
+        });
+
+        return obj;
+      }
 
       if (_.isArray(path)) return _.object(path, _.map(path, function(k){
         return view.get(k, opts);
