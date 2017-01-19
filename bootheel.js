@@ -181,6 +181,8 @@ function _bh(){
 
     return view;
   };
+
+  return bh;
 };
 
 var Bh = _bh.call(this);
