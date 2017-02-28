@@ -19,6 +19,7 @@ function _bh(){
     if ($(a.o.el).is('[data-set="' + a.o.path + '"]')){
       var $el = $(a.o.el)
         , method = $el.attr('data-set-method')
+                || ($el.is('input, select, textarea') ? 'val' : 'html')
         , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
         , value;
 
@@ -34,6 +35,7 @@ function _bh(){
     $(a.o.el).find('[data-set="' + a.o.path + '"]').each(function(i, el){
       var $el = $(el)
         , method = $el.attr('data-set-method')
+                || ($el.is('input, select, textarea') ? 'val' : 'html')
         , transform = $el.attr('data-set-transformer') || ('set:' + a.o.path)
         , value;
 
@@ -59,6 +61,7 @@ function _bh(){
 
     var $el = $(a.o.el).is('[data-get="' + a.o.path + '"]') ? $(a.o.el) : $(a.o.el).find('[data-get="' + a.o.path + '"]')
       , method = $el.attr('data-get-method')
+              || ($el.is('input, select, textarea') ? 'val()' : 'html()')
       , transform = $el.attr('data-get-transformer') || ('get:' + a.o.path)
       , value;
 
@@ -79,6 +82,8 @@ function _bh(){
       //template
       //el
     });
+
+    if (a.o.template && _.isString(a.o.template)) a.o.template = _.template(a.o.template);
 
     var view = new (Backbone.View.extend(_.pick(a.o, [
       'template'
@@ -113,6 +118,7 @@ function _bh(){
       var self = this;
 
       opts = opts || {};
+      opts['view'] = self;
 
       if (!opts.no_persist) _.each(vals, function(v, k){
         self.data[k] = v;
@@ -121,7 +127,7 @@ function _bh(){
       vals['self'] = self.data;
 
       _.each(vals, function(v, k){
-        if (self.setters[k]) self.setters[k](v, opts);
+        if (self.setters[k]) _.bind(self.setters, self)[k](v, opts);
 
         bh._viewSet({
           'el': self.$el
@@ -131,7 +137,10 @@ function _bh(){
         , 'data': vals
         });
 
-        if (!opts.silent) self.emit('set:' + k, v);
+        if (!opts.silent){
+          self.emit('set:' + k, v);
+          self.emit('set', _.object([k], [v]));
+        }
       });
     };
 
@@ -139,6 +148,7 @@ function _bh(){
       var self = this;
 
       opts = opts || {};
+      opts['view'] = self;
 
       if (Belt.isNull(path)){
         var obj = {};
@@ -167,7 +177,7 @@ function _bh(){
       var val;
 
       if (self.getters[path]){
-        val =  self.getters[path](opts);
+        val =  _.bind(self.getters[path], self)(opts);
       } else {
         val = bh._viewGet({
           'el': self.$el
@@ -177,20 +187,32 @@ function _bh(){
       }
 
       if (!opts.no_persist) self.data[path] = val;
-      if (!opts.silent) self.emit('get:' + path, val);
+      if (!opts.silent){
+        self.emit('get:' + path, val);
+        self.emit('get', _.object([path], [val]));
+      }
 
       return val;
     };
 
     _.extend(view, Backbone.Events);
 
-    view.setEvents = function(events){
+    view['setEvents'] = function(events){
       _.each(events, function(v, k){
         view.on(k, _.bind(v, view));
       });
     };
 
     view.setEvents(view.events);
+
+    if (a.o.template) view['render'] = function(el, template){
+      if (el) view.setEl(el);
+
+      if (template) _.isString(template) ? view['template'] =  _.template(template) : template;
+
+      view.$el.html(view.template(view.data));
+      view.emit('render');
+    };
 
     view['setEl'] = function(el){
       view['$el'] = $(el);
@@ -200,8 +222,10 @@ function _bh(){
           , event = cmps.shift()
           , sel = cmps.join(' ');
 
-        view.$el.on(event, sel, _.bind(v, view));
+        view.$el.on(event, sel || _.bind(v, view), sel ? _.bind(v, view) : null);
       });
+
+      view.emit('el', view.$el);
     };
 
     if (a.o.el) view.setEl(a.o.el);
