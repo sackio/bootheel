@@ -16,7 +16,7 @@ function _bh(){
       //data
     });
 
-    if ($(a.o.el).is('[data-set="' + a.o.path + '"]')){
+    if ($(a.o.el).is('[data-set="' + a.o.path.replace('"', '\'\'') + '"]')){
       var $el = $(a.o.el)
         , method = $el.attr('data-set-method')
                 || ($el.is('input, select, textarea') ? 'val' : 'html')
@@ -32,7 +32,7 @@ function _bh(){
       if (method) Belt.call($el, method, value);
     }
 
-    $(a.o.el).find('[data-set="' + a.o.path + '"]').each(function(i, el){
+    $(a.o.el).find('[data-set="' + a.o.path.replace('"', '\'\'') + '"]').each(function(i, el){
       var $el = $(el)
         , method = $el.attr('data-set-method')
                 || ($el.is('input, select, textarea') ? 'val' : 'html')
@@ -59,7 +59,7 @@ function _bh(){
       //data
     });
 
-    var $el = $(a.o.el).is('[data-get="' + a.o.path + '"]') ? $(a.o.el) : $(a.o.el).find('[data-get="' + a.o.path + '"]')
+    var $el = $(a.o.el).is('[data-get="' + a.o.path.replace('"', '\'\'') + '"]') ? $(a.o.el) : $(a.o.el).find('[data-get="' + a.o.path.replace('"', '\'\'') + '"]')
       , method = $el.attr('data-get-method')
               || ($el.is('input, select, textarea') ? 'val()' : 'html()')
       , transform = $el.attr('data-get-transformer') || ('get:' + a.o.path)
